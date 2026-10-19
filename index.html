@@ -79,6 +79,14 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
 .info a.yt{display:inline-block;margin-top:14px;font-size:.9rem;font-weight:600;color:var(--text);border-bottom:1px solid var(--line)}
 .info a.yt:hover{border-color:var(--orange)}
 
+/* Case "See more" */
+.more{align-items:center;justify-content:center;text-align:center;gap:14px;min-height:280px;padding:32px;border-style:dashed;background:transparent}
+.more:hover{border-color:var(--orange);background:rgba(255,122,26,.06)}
+.more .arrow{width:56px;height:56px;border-radius:50%;border:2px solid var(--orange);color:var(--orange);display:grid;place-items:center;font-size:1.5rem;transition:transform .2s,background .2s,color .2s}
+.more:hover .arrow{background:var(--orange);color:#14090a;transform:translateX(4px)}
+.more h3{font-family:var(--display);font-weight:500;font-size:1.05rem}
+.more p{color:var(--muted);font-size:.95rem}
+
 /* Contact */
 .contact{border-top:1px solid var(--line)}
 .socials{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
@@ -140,7 +148,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
     <div class="wrap">
       <div class="head">
         <h2>Projects</h2>
-        <p>Click a thumbnail to watch the video right here.</p>
+        <p>*This is not ALL my works its a selection.</p>
       </div>
       <div class="grid" id="grid"></div>
     </div>
@@ -184,19 +192,19 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
 <script>
 const projects = [
   {id:"PTPKU8zK7hM", title:"Voracity", type:"duo", label:"Duo edit",
-   desc:"A duo edit blending visual effects and rhythm to showcase the gameplay."},
+   desc:"A duo edit with @Bazill blending visual effects and rhythm to showcase the gameplay."},
   {id:"z1bxOp29GUc", title:"Revolver", type:"team", label:"Team project",
-   desc:"A collective project where each editor brings their own style to a shared idea."},
+   desc:"A collective project where each editor brings their own style to a spooky edit."},
   {id:"r1OqFtoUvqM", title:"Nixus Christmas Special 2025", type:"team", label:"Team project",
    desc:"The 2025 Christmas special, made with the Nixus team."},
   {id:"DdnWmGHrbAQ", title:"ALL IN MOTION (4K)", type:"solo", label:"Solo edit",
-   desc:"A solo 4K edit focused on motion, transitions and fluidity."},
+   desc:"A solo edit with some really good 3D improvement"},
   {id:"5gwjbs27fx0", title:"RLFX Best of France", type:"team", label:"My part",
    desc:"My part in RLFX, the project bringing together the best French editors."},
   {id:"RAwW1-0ps9w", title:"I SEEEE YOU BABY BOI", type:"solo", label:"Solo edit",
-   desc:"A solo edit with a playful vibe, built around effects and editing."},
+   desc:"A solo edit, trying to be smooth and have a good pace"},
   {id:"8VCnqffQulU", title:"5ONJOUR", type:"solo", label:"Solo edit",
-   desc:"A solo edit: dynamic, visual cutting."}
+   desc:"A solo edit, trying a different style and different 3D techniques"}
 ];
 
 const hv = document.getElementById('heroVideo');
@@ -240,6 +248,13 @@ projects.forEach(p => {
   });
   grid.appendChild(card);
 });
+const more = document.createElement('a');
+more.className = 'card more';
+more.href = 'https://www.youtube.com/@LnyVFX/playlists';
+more.target = '_blank';
+more.rel = 'noopener';
+more.innerHTML = `<span class="arrow">→</span><h3>See more</h3><p>Browse all my playlists on YouTube</p>`;
+grid.appendChild(more);
 </script>
 </body>
 </html>

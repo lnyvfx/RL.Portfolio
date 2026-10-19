@@ -53,6 +53,20 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
 .vbox .tag3d i{display:inline-block;width:34px;height:2px;background:linear-gradient(90deg,var(--blue),var(--orange))}
 .vbox .msg{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:var(--muted);pointer-events:none;transition:opacity .4s}
 .vbox .msg.hide{opacity:0}
+.layout{display:grid;grid-template-columns:1fr 290px;gap:22px;align-items:stretch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px;display:flex;flex-direction:column;gap:28px}
+.panel h3{font-family:var(--display);font-weight:500;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg button{font:inherit;font-weight:600;padding:11px 0;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--text);cursor:pointer;transition:border-color .2s,background .2s}
+.seg button:hover{border-color:#3b4668}
+.seg button.on{border-color:var(--orange);background:rgba(255,122,26,.12)}
+.swatches{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.sw{aspect-ratio:1;border-radius:50%;border:2px solid var(--surface);outline:1px solid var(--line);cursor:pointer;background:var(--c);padding:0;transition:transform .15s}
+.sw:hover{transform:scale(1.08)}
+.sw.on{outline:2px solid var(--text)}
+.custom{display:flex;align-items:center;justify-content:space-between;margin-top:16px;color:var(--muted);font-size:.9rem}
+.custom input{width:48px;height:34px;border:1px solid var(--line);border-radius:8px;background:transparent;padding:2px;cursor:pointer}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.vbox{height:clamp(320px,56vh,520px)}}
 .cta{display:flex;gap:14px;margin-top:32px;flex-wrap:wrap}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
 </style>
@@ -74,13 +88,29 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
   <section class="page">
     <div class="wrap">
       <div class="head">
-        <h2>3D viewer BETA </h2>
-        <p>*This page is still in progress, that mean its not fully working so please get back to the home page</p>
+        <h2>3D viewer</h2>
+        <p>Drag left / right to rotate the model 360°.</p>
       </div>
+      <div class="layout">
       <div class="vbox" id="vbox" tabindex="0" aria-label="Interactive 3D model, drag or use the left and right arrow keys to rotate">
         <canvas id="v3d"></canvas>
         <div class="msg" id="msg">Loading 3D model…</div>
-        <span class="tag3d"><i></i>Octane – drag to rotate</span>
+        <span class="tag3d"><i></i><span id="label">Octane</span> – drag to rotate</span>
+      </div>
+      <aside class="panel">
+        <div>
+          <h3>Model</h3>
+          <div class="seg" id="models">
+            <button type="button" class="on" data-m="octane" aria-pressed="true">Octane</button>
+            <button type="button" data-m="fennec" aria-pressed="false">Fennec</button>
+          </div>
+        </div>
+        <div>
+          <h3>Body color</h3>
+          <div class="swatches" id="swatches"></div>
+          <label class="custom">Custom color <input type="color" id="picker" value="#ff7a1a"></label>
+        </div>
+      </aside>
       </div>
       <div class="cta">
         <a class="btn primary" href="index.html#projects">Back to projects</a>
@@ -141,17 +171,64 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
   const shadow=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(sc),transparent:true,depthWrite:false}));
   shadow.rotation.x=-Math.PI/2; shadow.position.y=.002; scene.add(shadow);
 
-  new THREE.GLTFLoader().load('3D_octane_for_website.glb',gltf=>{
-    const model=gltf.scene;
-    let b=new THREE.Box3().setFromObject(model), size=b.getSize(new THREE.Vector3()), c=b.getCenter(new THREE.Vector3());
-    const k=4.2/Math.max(size.x,size.y,size.z);
-    model.scale.setScalar(k);
-    b=new THREE.Box3().setFromObject(model); c=b.getCenter(new THREE.Vector3());
+  // Models + body color
+  const FILES={octane:'3D_octane_for_website.glb',fennec:'fennec_3D_for_website.glb'};
+  const NAMES={octane:'Octane',fennec:'Fennec'};
+  const BODY={octane:['Octane Body'],fennec:['Fennec Decal']}; // material(s) that get recolored
+  const SWATCHES=['#ff7a1a','#2f7bff','#e5252a','#22c55e','#8b5cf6','#facc15','#ec4899','#f2f2f2','#15171f','#7b8499'];
+  const loader=new THREE.GLTFLoader(), models={};
+  const bodyColor=new THREE.Color();
+  let current=null, wanted='octane';
+  const setColor=hex=>bodyColor.set(hex).convertSRGBToLinear();
+  setColor('#ff7a1a');
+
+  function tint(key){
+    models[key].traverse(o=>{
+      if(!o.isMesh) return;
+      (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{ if(BODY[key].includes(m.name)) m.color.copy(bodyColor); });
+    });
+  }
+  function prepare(model){
+    model.traverse(o=>{
+      if(!o.isMesh) return;
+      (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{
+        if(/tread|tire/i.test(m.name||'') && !m.map) m.color.set(0x0b0b0c).convertSRGBToLinear(); // black tires
+      });
+    });
+    let b=new THREE.Box3().setFromObject(model), size=b.getSize(new THREE.Vector3());
+    model.scale.setScalar(4.2/Math.max(size.x,size.y,size.z));
+    b=new THREE.Box3().setFromObject(model); const c=b.getCenter(new THREE.Vector3());
     model.position.set(-c.x,-b.min.y,-c.z);
-    pivot.add(model);
-    shadow.scale.set(5.6,3.2,1);
-    msg.classList.add('hide');
-  },undefined,()=>fail('Could not load the 3D model. If you opened the file straight from your computer, put the site online or use a local server.'));
+  }
+  function show(key){
+    wanted=key;
+    document.getElementById('label').textContent=NAMES[key];
+    document.querySelectorAll('#models button').forEach(btn=>{const on=btn.dataset.m===key;btn.classList.toggle('on',on);btn.setAttribute('aria-pressed',on);});
+    const apply=()=>{
+      if(wanted!==key) return;
+      if(current) pivot.remove(current);
+      current=models[key]; pivot.add(current); shadow.scale.set(5.6,3.2,1); msg.classList.add('hide');
+    };
+    if(models[key]){ apply(); return; }
+    msg.textContent='Loading 3D model…'; msg.classList.remove('hide');
+    loader.load(FILES[key],gltf=>{ models[key]=gltf.scene; prepare(models[key]); tint(key); apply(); },undefined,
+      ()=>fail('Could not load the 3D model. If you opened the file straight from your computer, put the site online or use a local server.'));
+  }
+  document.querySelectorAll('#models button').forEach(btn=>btn.addEventListener('click',()=>show(btn.dataset.m)));
+
+  const sw=document.getElementById('swatches'), picker=document.getElementById('picker');
+  function pick(hex,btn){
+    setColor(hex); Object.keys(models).forEach(tint);
+    sw.querySelectorAll('.sw').forEach(x=>x.classList.toggle('on',x===btn));
+    picker.value=hex;
+  }
+  SWATCHES.forEach((hex,i)=>{
+    const btn=document.createElement('button');
+    btn.type='button'; btn.className='sw'+(i===0?' on':''); btn.style.setProperty('--c',hex); btn.setAttribute('aria-label','Body color '+hex);
+    btn.addEventListener('click',()=>pick(hex,btn)); sw.appendChild(btn);
+  });
+  picker.addEventListener('input',()=>pick(picker.value,null));
+  show('octane');
 
   // Rotation: drag, inertia, idle auto-rotate
   const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -176,7 +253,7 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
     if(!visible) return;
     if(!dragging){
       if(Math.abs(vel)>.0005){rot+=vel;vel*=.94;}
-      else if(!still){rot+=.004;}
+      else if(!still){rot+=.0015;}
     }
     pivot.rotation.y=rot;
     renderer.render(scene,camera);

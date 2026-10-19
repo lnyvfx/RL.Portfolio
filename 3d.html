@@ -67,6 +67,10 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
 .custom{display:flex;align-items:center;justify-content:space-between;margin-top:16px;color:var(--muted);font-size:.9rem}
 .custom input{width:48px;height:34px;border:1px solid var(--line);border-radius:8px;background:transparent;padding:2px;cursor:pointer}
 @media(max-width:900px){.layout{grid-template-columns:1fr}.vbox{height:clamp(320px,56vh,520px)}}
+.dl{font:inherit;font-weight:600;width:100%;padding:13px 0;border-radius:999px;border:0;background:var(--orange);color:#14090a;cursor:pointer;transition:transform .2s,background .2s}
+.dl:hover{transform:translateY(-2px);background:#ff8d3a}
+.dl:disabled{opacity:.6;cursor:wait;transform:none}
+.note{margin-top:12px;color:var(--muted);font-size:.85rem;line-height:1.5}
 .cta{display:flex;gap:14px;margin-top:32px;flex-wrap:wrap}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
 </style>
@@ -110,6 +114,11 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
           <div class="swatches" id="swatches"></div>
           <label class="custom">Custom color <input type="color" id="picker" value="#ff7a1a"></label>
         </div>
+        <div id="dlBox">
+          <h3>Download</h3>
+          <button type="button" class="dl" id="dl">Download .glb</button>
+          <p class="note">The file keeps the body color you picked. In Blender: File → Import → glTF 2.0.</p>
+        </div>
       </aside>
       </div>
       <div class="cta">
@@ -130,6 +139,7 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
 <script>
 (function(){
   const box=document.getElementById('vbox'), canvas=document.getElementById('v3d'), msg=document.getElementById('msg');
@@ -188,11 +198,16 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
       (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{ if(BODY[key].includes(m.name)) m.color.copy(bodyColor); });
     });
   }
-  function prepare(model){
+  // Non-body parts: black / dark greys (slightly different shades for contrast)
+  const TONES={'Octane Chassis':'#2b2e38','Window':'#04050a','Paint':'#0c0d12','Dieci Rim':'#2a2d36','Dieci Tread':'#0b0b0c','Master Glass':'#05070c'};
+  function prepare(key,model){
     model.traverse(o=>{
       if(!o.isMesh) return;
       (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{
-        if(/tread|tire/i.test(m.name||'') && !m.map) m.color.set(0x0b0b0c).convertSRGBToLinear(); // black tires
+        const t=TONES[m.name];
+        if(t) m.color.set(t).convertSRGBToLinear();
+        else if(/tread|tire/i.test(m.name||'') && !m.map) m.color.set(0x0b0b0c).convertSRGBToLinear();
+        if(m.name==='Master Glass'){ m.transparent=true; m.opacity=.93; m.metalness=.6; m.roughness=.05; } // tinted window glass
       });
     });
     let b=new THREE.Box3().setFromObject(model), size=b.getSize(new THREE.Vector3());
@@ -211,7 +226,7 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
     };
     if(models[key]){ apply(); return; }
     msg.textContent='Loading 3D model…'; msg.classList.remove('hide');
-    loader.load(FILES[key],gltf=>{ models[key]=gltf.scene; prepare(models[key]); tint(key); apply(); },undefined,
+    loader.load(FILES[key],gltf=>{ models[key]=gltf.scene; prepare(key,models[key]); tint(key); apply(); },undefined,
       ()=>fail('Could not load the 3D model. If you opened the file straight from your computer, put the site online or use a local server.'));
   }
   document.querySelectorAll('#models button').forEach(btn=>btn.addEventListener('click',()=>show(btn.dataset.m)));
@@ -228,6 +243,26 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
     btn.addEventListener('click',()=>pick(hex,btn)); sw.appendChild(btn);
   });
   picker.addEventListener('input',()=>pick(picker.value,null));
+  // Download current model as .glb with the chosen body color
+  const dl=document.getElementById('dl');
+  if(!THREE.GLTFExporter){ document.getElementById('dlBox').style.display='none'; }
+  else dl.addEventListener('click',()=>{
+    if(!current) return;
+    const key=wanted, copy=current.clone(true);
+    copy.position.set(0,0,0); copy.scale.set(1,1,1); copy.rotation.set(0,0,0); // original size, no viewer rotation
+    dl.disabled=true; dl.textContent='Preparing…';
+    const done=()=>{dl.disabled=false;dl.textContent='Download .glb';};
+    try{
+      new THREE.GLTFExporter().parse(copy,result=>{
+        const url=URL.createObjectURL(new Blob([result],{type:'model/gltf-binary'}));
+        const a=document.createElement('a');
+        a.href=url; a.download=NAMES[key]+'_'+picker.value.replace('#','')+'.glb';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(()=>URL.revokeObjectURL(url),2000); done();
+      },{binary:true});
+    }catch(e){ done(); alert('Export failed on this device.'); }
+  });
+
   show('octane');
 
   // Rotation: drag, inertia, idle auto-rotate

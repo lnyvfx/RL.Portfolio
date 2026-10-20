@@ -92,7 +92,7 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
 .info a.yt{display:inline-block;margin-top:14px;font-size:.9rem;font-weight:600;color:var(--text);border-bottom:1px solid var(--line)}
 .info a.yt:hover{border-color:var(--orange)}
 
-.thumb{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden}
+.thumb{position:relative;aspect-ratio:16/9;background:linear-gradient(135deg,#1a2038,#0f1220);overflow:hidden}
 .thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s}
 .card:hover .thumb img{transform:scale(1.04)}
 .info .btn{margin-top:18px}
@@ -240,7 +240,7 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
     });
   }
   // Non-body parts: black / dark greys (slightly different shades for contrast)
-  const TONES={'Octane Chassis':'#2b2e38','Window':'#04050a','Paint':'#0c0d12','Dieci Rim':'#2a2d36','Dieci Tread':'#0b0b0c','Master Glass':'#000000'};
+  const TONES={'Octane Chassis':'#2b2e38','Window':'#04050a','Paint':'#0c0d12','Dieci Rim':'#2a2d36','Dieci Tread':'#0b0b0c'};
   function prepare(key,model){
     model.traverse(o=>{
       if(!o.isMesh) return;
@@ -248,7 +248,12 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
         const t=TONES[m.name];
         if(t) m.color.set(t).convertSRGBToLinear();
         else if(/tread|tire/i.test(m.name||'') && !m.map) m.color.set(0x0b0b0c).convertSRGBToLinear();
-        if(m.name==='Master Glass'){ m.transparent=true; m.opacity=.985; m.metalness=0; m.roughness=.12; m.envMapIntensity=.4; } // tinted window glass
+        if(m.name==='Master Glass'){ // opaque, glossy black "mirror" glass (no transparency)
+          m.color.set('#30343f').convertSRGBToLinear();
+          m.transparent=false; m.opacity=1; m.depthWrite=true;
+          if('transmission' in m) m.transmission=0;
+          m.metalness=1; m.roughness=.05; m.envMapIntensity=2; m.needsUpdate=true;
+        } // tinted window glass
       });
     });
     let b=new THREE.Box3().setFromObject(model), size=b.getSize(new THREE.Vector3());
@@ -374,8 +379,8 @@ tutorials.forEach(p=>{
 // To add a map: copy one line, change the name, image file, description and download link.
 const maps=[
   {name:"DFH Stadium", img:"dfh-stadium.jpg", desc:"The DFH Stadium arena in 3D, ready to use in your edits.",
-   url:"https://github.com/lnyvfx/RL.Portfolio/releases/download/v1.maps/DFH_Stadium.1.rar"}
-  {name:"Sovereign Heights", img:"Sovereign Heights photo.png", desc:"The Sovereign Heights arena in 3D, ready to use in your edits.",
+   url:"https://cdn.discordapp.com/attachments/1470464242082644060/1470464247757799506/DFH_Stadium.rar?ex=6ad846cc&is=6ad6f54c&hm=3841fcc7e00cd5cd0f738aa4920a648afd3f9b7252d9a797407ee357a0a62729&"},
+  {name:"Sovereign Heights", img:"sovereign-heights.jpg", desc:"The Sovereign Heights map in 3D, ready to use in your edits.",
    url:"https://github.com/lnyvfx/RL.Portfolio/releases/download/v1.maps/Sovereign.Heights_@furphyrl.rar"}
 ];
 const mapsGrid=document.getElementById('mapsGrid');
@@ -383,7 +388,7 @@ maps.forEach(m=>{
   const card=document.createElement('article');
   card.className='card';
   card.innerHTML=`
-    <div class="thumb"><img src="${m.img}" alt="Preview of ${m.name}" loading="lazy"></div>
+    <div class="thumb"><img src="${m.img}" alt="Preview of ${m.name}" loading="lazy" onerror="this.style.display='none'"></div>
     <div class="info">
       <span class="tag duo">Map</span>
       <h3>${m.name}</h3>

@@ -29,7 +29,7 @@ header{position:sticky;top:0;z-index:20;background:rgba(10,12,20,.82);backdrop-f
 header .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
 .logo{font-family:var(--display);font-weight:900;font-size:1.05rem;letter-spacing:.02em}
 .logo span{color:var(--orange)}
-nav{display:flex;gap:28px;font-size:.95rem;color:var(--muted)}
+nav{display:flex;gap:28px;font-size:.95rem;color:var(--muted);align-items:center}
 nav a:hover{color:var(--text)}
 .navbox{margin-left:14px;padding:8px 18px;border:1px solid var(--orange);border-radius:999px;background:rgba(255,122,26,.1);color:var(--text);font-weight:600;white-space:nowrap;transition:background .2s,color .2s}
 nav a.navbox:hover,nav a.navbox.active{background:var(--orange);color:#14090a}
@@ -92,6 +92,10 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
 .info a.yt{display:inline-block;margin-top:14px;font-size:.9rem;font-weight:600;color:var(--text);border-bottom:1px solid var(--line)}
 .info a.yt:hover{border-color:var(--orange)}
 
+.thumb{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden}
+.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.card:hover .thumb img{transform:scale(1.04)}
+.info .btn{margin-top:18px}
 .tuto{padding-top:0}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
 </style>
@@ -142,6 +146,16 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
         </div>
       </aside>
       </div>
+    </div>
+  </section>
+
+  <section class="page tuto" id="maps">
+    <div class="wrap">
+      <div class="head">
+        <h2>3D maps</h2>
+        <p>Download Rocket League maps for your edits.</p>
+      </div>
+      <div class="grid" id="mapsGrid"></div>
     </div>
   </section>
 
@@ -354,6 +368,27 @@ tutorials.forEach(p=>{
     btn.replaceWith(wrap);
   });
   grid.appendChild(card);
+});
+</script>
+<script>
+// To add a map: copy one line, change the name, image file, description and download link.
+const maps=[
+  {name:"DFH Stadium", img:"dfh-stadium.jpg", desc:"The DFH Stadium arena in 3D, ready to use in your edits.",
+   url:"https://github.com/lnyvfx/RL.Portfolio/releases/download/v1.maps/DFH_Stadium.1.rar"}
+];
+const mapsGrid=document.getElementById('mapsGrid');
+maps.forEach(m=>{
+  const card=document.createElement('article');
+  card.className='card';
+  card.innerHTML=`
+    <div class="thumb"><img src="${m.img}" alt="Preview of ${m.name}" loading="lazy"></div>
+    <div class="info">
+      <span class="tag duo">Map</span>
+      <h3>${m.name}</h3>
+      <p>${m.desc}</p>
+      <a class="btn primary" href="${m.url}" target="_blank" rel="noopener">Download</a>
+    </div>`;
+  mapsGrid.appendChild(card);
 });
 </script>
 </body>

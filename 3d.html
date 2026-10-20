@@ -248,7 +248,7 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
         const t=TONES[m.name];
         if(t) m.color.set(t).convertSRGBToLinear();
         else if(/tread|tire/i.test(m.name||'') && !m.map) m.color.set(0x0b0b0c).convertSRGBToLinear();
-        if(m.name==='Master Glass'){ // opaque, glossy black "mirror" glass (no transparency)
+        if(m.name==='Master Glass'||m.name==='Fennec Headlights'){ // opaque, glossy black "mirror" glass (no transparency)
           m.color.set('#30343f').convertSRGBToLinear();
           m.transparent=false; m.opacity=1; m.depthWrite=true;
           if('transmission' in m) m.transmission=0;

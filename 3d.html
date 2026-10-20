@@ -131,10 +131,12 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
           <h3>Model</h3>
           <div class="seg" id="models">
             <button type="button" class="on" data-m="octane" aria-pressed="true">Octane</button>
+            <button type="button" data-m="dominus" aria-pressed="false">Dominus</button>
             <button type="button" data-m="fennec" aria-pressed="false">Fennec</button>
+            <button type="button" data-m="ball" aria-pressed="false">Ball</button>
           </div>
         </div>
-        <div>
+        <div id="colorBox">
           <h3>Body color</h3>
           <div class="swatches" id="swatches"></div>
           <label class="custom">Custom color <input type="color" id="picker" value="#ff7a1a"></label>
@@ -142,7 +144,7 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
         <div id="dlBox">
           <h3>Download</h3>
           <button type="button" class="dl" id="dl">Download .glb</button>
-          <p class="note">The file keeps the body color you picked. In Blender: File → Import → glTF 2.0.</p>
+          <p class="note" id="dlNote">The file keeps the body color you picked. In Blender: File → Import → glTF 2.0.</p>
         </div>
       </aside>
       </div>
@@ -220,12 +222,14 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
   gr.addColorStop(0,'rgba(0,0,0,.75)'); gr.addColorStop(1,'rgba(0,0,0,0)');
   g.fillStyle=gr; g.fillRect(0,0,256,256);
   const shadow=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(sc),transparent:true,depthWrite:false}));
-  shadow.rotation.x=-Math.PI/2; shadow.position.y=.002; scene.add(shadow);
+  shadow.rotation.x=-Math.PI/2; shadow.position.y=.002; pivot.add(shadow); // sized per model in show()
 
   // Models + body color
-  const FILES={octane:'3D_octane_for_website.glb',fennec:'fennec_3D_for_website.glb'};
-  const NAMES={octane:'Octane',fennec:'Fennec'};
-  const BODY={octane:['Octane Body'],fennec:['Fennec Decal']}; // material(s) that get recolored
+  const FILES={octane:'3D_new_octane_for_website.glb',dominus:'3D_dominus_for_website.glb',fennec:'fennec_3D_for_website.glb',ball:'ball_for_website.glb'};
+  const NAMES={octane:'Octane',dominus:'Dominus',fennec:'Fennec',ball:'Ball'};
+  const BODY={octane:['Octane Decal'],dominus:['Dominus Decal'],fennec:['Fennec Decal'],ball:[]}; // material(s) that get recolored (the ball is never recolored)
+  const SIZE={ball:2.4}; // target size in the viewer (cars: 4.2)
+  const BALL_ZIP='rocket_league_ball.zip'; // .glb + diffuse/normal PNG, for Blender
   const SWATCHES=['#ff7a1a','#2f7bff','#e5252a','#22c55e','#8b5cf6','#facc15','#ec4899','#f2f2f2','#15171f','#7b8499'];
   const loader=new THREE.GLTFLoader(), models={};
   const bodyColor=new THREE.Color();
@@ -239,36 +243,43 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
       (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{ if(BODY[key].includes(m.name)) m.color.copy(bodyColor); });
     });
   }
-  // Non-body parts: black / dark greys (slightly different shades for contrast)
-  const TONES={'Octane Chassis':'#2b2e38','Window':'#04050a','Paint':'#0c0d12','Dieci Rim':'#2a2d36','Dieci Tread':'#0b0b0c'};
+  // Glass parts: opaque, glossy black "mirror" glass (no transparency)
+  const GLASS=['Master Glass','Fennec Headlights','Pro Glass','Window.005','windows.001'];
   function prepare(key,model){
     model.traverse(o=>{
       if(!o.isMesh) return;
       (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{
-        const t=TONES[m.name];
-        if(t) m.color.set(t).convertSRGBToLinear();
-        else if(/tread|tire/i.test(m.name||'') && !m.map) m.color.set(0x0b0b0c).convertSRGBToLinear();
-        if(m.name==='Master Glass'||m.name==='Fennec Headlights'){ // opaque, glossy black "mirror" glass (no transparency)
+        if(/tread|tire/i.test(m.name||'') && !m.map) m.color.set(0x0b0b0c).convertSRGBToLinear();
+        if(GLASS.includes(m.name)){
           m.color.set('#30343f').convertSRGBToLinear();
+          m.map=null; m.metalnessMap=null; m.roughnessMap=null;
           m.transparent=false; m.opacity=1; m.depthWrite=true;
           if('transmission' in m) m.transmission=0;
           m.metalness=1; m.roughness=.05; m.envMapIntensity=2; m.needsUpdate=true;
-        } // tinted window glass
+        } else if('transmission' in m && m.transmission>0){ m.transmission=0; m.needsUpdate=true; } // e.g. tail lights
       });
     });
     let b=new THREE.Box3().setFromObject(model), size=b.getSize(new THREE.Vector3());
-    model.scale.setScalar(4.2/Math.max(size.x,size.y,size.z));
+    model.scale.setScalar((SIZE[key]||4.2)/Math.max(size.x,size.y,size.z));
     b=new THREE.Box3().setFromObject(model); const c=b.getCenter(new THREE.Vector3());
     model.position.set(-c.x,-b.min.y,-c.z);
+    const sz=b.getSize(new THREE.Vector3()); model.userData.shadow=[sz.x,sz.z]; // footprint for the soft shadow
   }
+  const dlLabel=()=>wanted==='ball'?'Download ball (.zip)':'Download .glb';
   function show(key){
     wanted=key;
+    const isBall=key==='ball';
+    document.getElementById('colorBox').style.display=isBall?'none':'';
+    document.getElementById('dl').textContent=dlLabel();
+    document.getElementById('dlNote').textContent=isBall
+      ?'Zip with the .glb (textures included) and the diffuse + normal maps as PNG. In Blender: File → Import → glTF 2.0.'
+      :'The file keeps the body color you picked. In Blender: File → Import → glTF 2.0.';
     document.getElementById('label').textContent=NAMES[key];
     document.querySelectorAll('#models button').forEach(btn=>{const on=btn.dataset.m===key;btn.classList.toggle('on',on);btn.setAttribute('aria-pressed',on);});
     const apply=()=>{
       if(wanted!==key) return;
       if(current) pivot.remove(current);
-      current=models[key]; pivot.add(current); shadow.scale.set(5.6,3.2,1); msg.classList.add('hide');
+      current=models[key]; pivot.add(current); const f=current.userData.shadow; shadow.scale.set(f[0]*1.4,f[1]*1.25,1); msg.classList.add('hide');
     };
     if(models[key]){ apply(); return; }
     msg.textContent='Loading 3D model…'; msg.classList.remove('hide');
@@ -291,13 +302,16 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
   picker.addEventListener('input',()=>pick(picker.value,null));
   // Download current model as .glb with the chosen body color
   const dl=document.getElementById('dl');
-  if(!THREE.GLTFExporter){ document.getElementById('dlBox').style.display='none'; }
-  else dl.addEventListener('click',()=>{
-    if(!current) return;
+  dl.addEventListener('click',()=>{
+    if(wanted==='ball'){ // the ball is not recolorable: download the ready-made zip as is
+      const a=document.createElement('a'); a.href=BALL_ZIP; a.download='Rocket_League_Ball.zip';
+      document.body.appendChild(a); a.click(); a.remove(); return;
+    }
+    if(!current||!THREE.GLTFExporter) return;
     const key=wanted, copy=current.clone(true);
     copy.position.set(0,0,0); copy.scale.set(1,1,1); copy.rotation.set(0,0,0); // original size, no viewer rotation
     dl.disabled=true; dl.textContent='Preparing…';
-    const done=()=>{dl.disabled=false;dl.textContent='Download .glb';};
+    const done=()=>{dl.disabled=false;dl.textContent=dlLabel();};
     try{
       new THREE.GLTFExporter().parse(copy,result=>{
         const url=URL.createObjectURL(new Blob([result],{type:'model/gltf-binary'}));
@@ -379,7 +393,7 @@ tutorials.forEach(p=>{
 // To add a map: copy one line, change the name, image file, description and download link.
 const maps=[
   {name:"DFH Stadium", img:"dfh-stadium.jpg", desc:"The DFH Stadium arena in 3D, ready to use in your edits.",
-   url:"https://cdn.discordapp.com/attachments/1470464242082644060/1470464247757799506/DFH_Stadium.rar?ex=6ad846cc&is=6ad6f54c&hm=3841fcc7e00cd5cd0f738aa4920a648afd3f9b7252d9a797407ee357a0a62729&"},
+   url:"https://github.com/lnyvfx/RL.Portfolio/releases/download/v1.maps/DFH_Stadium.1.rar"},
   {name:"Sovereign Heights", img:"sovereign-heights.jpg", desc:"The Sovereign Heights map in 3D, ready to use in your edits.",
    url:"https://github.com/lnyvfx/RL.Portfolio/releases/download/v1.maps/Sovereign.Heights_@furphyrl.rar"},
   {name:"Aquadome", img:"aquadome.jpg", desc:"The Aquadome arena as a Blender file, ready for your edits.",

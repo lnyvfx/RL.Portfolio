@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>3D viewer – LnyVFX</title>
+<title>3D customizer – LnyVFX</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0c14'/%3E%3Cpath d='M20 14h10v26h14v10H20z' fill='%232f7bff' transform='translate(-3 0)'/%3E%3Cpath d='M20 14h10v26h14v10H20z' fill='%23ff7a1a' transform='translate(3 0)'/%3E%3Cpath d='M20 14h10v26h14v10H20z' fill='%23eef1fa'/%3E%3C/svg%3E">
-<meta name="description" content="Interactive 3D model viewer by Lny VFX.">
+<meta name="description" content="Interactive 3D customizer by Lny VFX.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
@@ -31,6 +31,9 @@ header .wrap{display:flex;align-items:center;justify-content:space-between;heigh
 .logo span{color:var(--orange)}
 nav{display:flex;gap:28px;font-size:.95rem;color:var(--muted)}
 nav a:hover{color:var(--text)}
+.navbox{margin-left:14px;padding:8px 18px;border:1px solid var(--orange);border-radius:999px;background:rgba(255,122,26,.1);color:var(--text);font-weight:600;white-space:nowrap;transition:background .2s,color .2s}
+nav a.navbox:hover,nav a.navbox.active{background:var(--orange);color:#14090a}
+@media(max-width:560px){nav{gap:12px;font-size:.82rem}.navbox{margin-left:4px;padding:6px 12px}.logo{font-size:.9rem}}
 
 .btn{display:inline-block;padding:13px 26px;border-radius:999px;font-weight:600;font-size:.95rem;transition:transform .2s,background .2s}
 .btn.primary{background:var(--orange);color:#14090a}
@@ -71,7 +74,25 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
 .dl:hover{transform:translateY(-2px);background:#ff8d3a}
 .dl:disabled{opacity:.6;cursor:wait;transform:none}
 .note{margin-top:12px;color:var(--muted);font-size:.85rem;line-height:1.5}
-.cta{display:flex;gap:14px;margin-top:32px;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:28px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .25s}
+.card:hover{border-color:#3b4668}
+.player{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer;border:0;width:100%;display:block;padding:0}
+.player img,.player iframe{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border:0}
+.player img{transition:transform .5s}
+.card:hover .player img{transform:scale(1.04)}
+.play{position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;background:rgba(10,12,20,.7);border:2px solid #fff;display:grid;place-items:center;transition:background .2s,transform .2s}
+.play::after{content:"";margin-left:5px;border-style:solid;border-width:10px 0 10px 17px;border-color:transparent transparent transparent #fff}
+.player:hover .play{background:var(--orange);border-color:var(--orange);transform:scale(1.08)}
+.info{padding:20px 22px 24px}
+.tag{display:inline-block;font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:999px;border:1px solid currentColor;margin-bottom:12px}
+.tag.solo{color:var(--orange)} .tag.duo{color:#b78cff} .tag.team{color:var(--blue)}
+.info h3{font-family:var(--display);font-weight:500;font-size:1.05rem;line-height:1.35;margin-bottom:8px}
+.info p{color:var(--muted);font-size:.95rem}
+.info a.yt{display:inline-block;margin-top:14px;font-size:.9rem;font-weight:600;color:var(--text);border-bottom:1px solid var(--line)}
+.info a.yt:hover{border-color:var(--orange)}
+
+.tuto{padding-top:0}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
@@ -82,8 +103,8 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
     <a class="logo" href="index.html">LNY<span>.</span>VFX</a>
     <nav>
       <a href="index.html#projects">Projects</a>
-      <a href="3d.html" class="active">3D</a>
       <a href="index.html#contact">Contact</a>
+      <a href="3d.html" class="navbox active">3D & VFX resources</a>
     </nav>
   </div>
 </header>
@@ -92,7 +113,7 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
   <section class="page">
     <div class="wrap">
       <div class="head">
-        <h2>3D viewer</h2>
+        <h2>3D customizer</h2>
         <p>Drag left / right to rotate the model 360°.</p>
       </div>
       <div class="layout">
@@ -121,10 +142,16 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
         </div>
       </aside>
       </div>
-      <div class="cta">
-        <a class="btn primary" href="index.html#projects">Back to projects</a>
-        <a class="btn ghost-btn" href="index.html#contact">Get in touch</a>
+    </div>
+  </section>
+
+  <section class="page tuto" id="tutorials">
+    <div class="wrap">
+      <div class="head">
+        <h2>Useful tutorials</h2>
+        <p>Click a thumbnail to watch the video right here.</p>
       </div>
+      <div class="grid" id="grid"></div>
     </div>
   </section>
 </main>
@@ -199,7 +226,7 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
     });
   }
   // Non-body parts: black / dark greys (slightly different shades for contrast)
-  const TONES={'Octane Chassis':'#2b2e38','Window':'#04050a','Paint':'#0c0d12','Dieci Rim':'#2a2d36','Dieci Tread':'#0b0b0c','Master Glass':'#05070c'};
+  const TONES={'Octane Chassis':'#2b2e38','Window':'#04050a','Paint':'#0c0d12','Dieci Rim':'#2a2d36','Dieci Tread':'#0b0b0c','Master Glass':'#000000'};
   function prepare(key,model){
     model.traverse(o=>{
       if(!o.isMesh) return;
@@ -207,7 +234,7 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
         const t=TONES[m.name];
         if(t) m.color.set(t).convertSRGBToLinear();
         else if(/tread|tire/i.test(m.name||'') && !m.map) m.color.set(0x0b0b0c).convertSRGBToLinear();
-        if(m.name==='Master Glass'){ m.transparent=true; m.opacity=.93; m.metalness=.6; m.roughness=.05; } // tinted window glass
+        if(m.name==='Master Glass'){ m.transparent=true; m.opacity=.985; m.metalness=0; m.roughness=.12; m.envMapIntensity=.4; } // tinted window glass
       });
     });
     let b=new THREE.Box3().setFromObject(model), size=b.getSize(new THREE.Vector3());
@@ -267,12 +294,12 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
 
   // Rotation: drag, inertia, idle auto-rotate
   const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let rot=.6, vel=0, dragging=false, lastX=0, visible=true;
-  box.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;vel=0;box.setPointerCapture(e.pointerId);});
+  let rot=.6, vel=0, dragging=false, lastX=0, visible=true, touched=false;
+  box.addEventListener('pointerdown',e=>{dragging=true;touched=true;lastX=e.clientX;vel=0;box.setPointerCapture(e.pointerId);});
   box.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-lastX;lastX=e.clientX;rot+=dx*.012;vel=dx*.012;});
   const end=()=>{dragging=false;};
   box.addEventListener('pointerup',end); box.addEventListener('pointercancel',end);
-  box.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')rot-=.15;else if(e.key==='ArrowRight')rot+=.15;});
+  box.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'){rot-=.15;touched=true;}else if(e.key==='ArrowRight'){rot+=.15;touched=true;}});
 
   function resize(){
     const w=box.clientWidth,h=box.clientHeight; if(!w||!h)return;
@@ -288,12 +315,46 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
     if(!visible) return;
     if(!dragging){
       if(Math.abs(vel)>.0005){rot+=vel;vel*=.94;}
-      else if(!still){rot+=.0015;}
+      else if(!still&&!touched){rot+=.0015;} // auto-rotate only until the first touch
     }
     pivot.rotation.y=rot;
     renderer.render(scene,camera);
   })();
 })();
+</script>
+<script>
+const tutorials=[
+  {id:"_LJKDjYVwxo", title:"ULTIMATE 3D TUTORIAL for Rocket League Editing", by:"By FUSION"}
+];
+const grid=document.getElementById('grid');
+tutorials.forEach(p=>{
+  const card=document.createElement('article');
+  card.className='card';
+  card.innerHTML=`
+    <button class="player" aria-label="Play video ${p.title}">
+      <img src="https://i.ytimg.com/vi/${p.id}/maxresdefault.jpg" alt="Thumbnail of ${p.title}" loading="lazy">
+      <span class="play"></span>
+    </button>
+    <div class="info">
+      <span class="tag team">Tutorial</span>
+      <h3>${p.title}</h3>
+      <p>${p.by}</p>
+      <a class="yt" href="https://youtu.be/${p.id}" target="_blank" rel="noopener">Watch on YouTube</a>
+    </div>`;
+  const img=card.querySelector('img');
+  const fb=()=>{ if(!img.dataset.fb){ img.dataset.fb=1; img.src=`https://i.ytimg.com/vi/${p.id}/hqdefault.jpg`; } };
+  img.addEventListener('error',fb);
+  img.addEventListener('load',()=>{ if(img.naturalWidth<=120) fb(); });
+  const btn=card.querySelector('.player');
+  btn.addEventListener('click',()=>{
+    if(location.protocol==='file:'){ window.open(`https://youtu.be/${p.id}`,'_blank','noopener'); return; }
+    const wrap=document.createElement('div');
+    wrap.className='player'; wrap.style.cursor='default';
+    wrap.innerHTML=`<iframe src="https://www.youtube.com/embed/${p.id}?autoplay=1&rel=0&origin=${encodeURIComponent(location.origin)}" title="${p.title}" allow="accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+    btn.replaceWith(wrap);
+  });
+  grid.appendChild(card);
+});
 </script>
 </body>
 </html>

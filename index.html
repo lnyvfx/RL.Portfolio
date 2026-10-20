@@ -31,6 +31,9 @@ header .wrap{display:flex;align-items:center;justify-content:space-between;heigh
 .logo span{color:var(--orange)}
 nav{display:flex;gap:28px;font-size:.95rem;color:var(--muted)}
 nav a:hover{color:var(--text)}
+.navbox{margin-left:14px;padding:8px 18px;border:1px solid var(--orange);border-radius:999px;background:rgba(255,122,26,.1);color:var(--text);font-weight:600;white-space:nowrap;transition:background .2s,color .2s}
+nav a.navbox:hover,nav a.navbox.active{background:var(--orange);color:#14090a}
+@media(max-width:560px){nav{gap:12px;font-size:.82rem}.navbox{margin-left:4px;padding:6px 12px}.logo{font-size:.9rem}}
 
 /* Hero */
 .hero{position:relative;overflow:hidden;padding:110px 0 90px}
@@ -118,8 +121,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
     <a class="logo" href="#top">LNY<span>.</span>VFX</a>
     <nav>
       <a href="#projects">Projects</a>
-      <a href="3d.html">3D</a>
       <a href="#contact">Contact</a>
+      <a href="3d.html" class="navbox">3D & VFX resources</a>
     </nav>
   </div>
 </header>

@@ -4,16 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LnyVFX</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0c14'/%3E%3Cpath d='M20 14h10v26h14v10H20z' fill='%232f7bff' transform='translate(-3 0)'/%3E%3Cpath d='M20 14h10v26h14v10H20z' fill='%23ff7a1a' transform='translate(3 0)'/%3E%3Cpath d='M20 14h10v26h14v10H20z' fill='%23eef1fa'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23050505'/%3E%3Cpath d='M20 14h10v26h14v10H20z' fill='%23666666' transform='translate(-3 0)'/%3E%3Cpath d='M20 14h10v26h14v10H20z' fill='%23bbbbbb' transform='translate(3 0)'/%3E%3Cpath d='M20 14h10v26h14v10H20z' fill='%23ffffff'/%3E%3C/svg%3E">
 <meta name="description" content="Portfolio of Lny: VFX & 3D editor specialized in Rocket League.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0a0c14; --surface:#121624; --line:#232a40;
-  --text:#eef1fa; --muted:#98a1bd;
-  --blue:#be45aa; --orange:#f5ee8f;
+  --bg:#050505; --surface:#0e0e0e; --line:#222;
+  --text:#f2f2f2; --muted:#8a8a8a;
+  --blue:#6b6b6b; --orange:#ffffff;
   --display:'Unbounded','Arial Black',system-ui,sans-serif;
   --body:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
 }
@@ -25,36 +25,45 @@ a{color:inherit;text-decoration:none}
 .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
 
 /* Header */
-header{position:sticky;top:0;z-index:20;background:rgba(10,12,20,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+header{position:sticky;top:0;z-index:20;background:rgba(5,5,5,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 header .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
 .logo{font-family:var(--display);font-weight:900;font-size:1.05rem;letter-spacing:.02em}
 .logo span{color:var(--orange)}
 nav{display:flex;gap:28px;font-size:.95rem;color:var(--muted);align-items:center}
 nav a:hover{color:var(--text)}
-.navbox{margin-left:14px;padding:8px 18px;border:1px solid var(--orange);border-radius:999px;background:rgba(255,122,26,.1);color:var(--text);font-weight:600;white-space:nowrap;transition:background .2s,color .2s}
-nav a.navbox:hover,nav a.navbox.active{background:var(--orange);color:#14090a}
+.navbox{margin-left:14px;padding:8px 18px;border:1px solid var(--orange);border-radius:999px;background:rgba(255,255,255,.08);color:var(--text);font-weight:600;white-space:nowrap;transition:background .2s,color .2s}
+nav a.navbox:hover,nav a.navbox.active{background:var(--orange);color:#050505}
 @media(max-width:560px){nav{gap:12px;font-size:.82rem}.navbox{margin-left:4px;padding:6px 12px}.logo{font-size:.9rem}}
 
 /* Hero */
-.hero{position:relative;overflow:hidden;padding:110px 0 90px}
+.hero{position:relative;overflow:hidden;padding:110px 0 90px;min-height:min(92vh,820px);display:flex;align-items:center}
+.hero>.wrap{width:100%}
 .hero h1{font-family:var(--display);font-weight:900;font-size:clamp(4rem,17vw,13rem);line-height:.9;letter-spacing:-.03em;position:relative;display:inline-block}
 .hero h1 span{display:block}
 .hero h1 .ghost{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen}
-.hero h1 .b{color:var(--blue);transform:translate(-.025em,0);animation:split 1.4s cubic-bezier(.2,.8,.2,1) both}
-.hero h1 .o{color:var(--orange);transform:translate(.025em,0);animation:split 1.4s cubic-bezier(.2,.8,.2,1) both}
+.hero h1 .b{color:#5a5a5a;transform:translate(-.025em,0);animation:split 1.4s cubic-bezier(.2,.8,.2,1) both}
+.hero h1 .o{color:#b8b8b8;transform:translate(.025em,0);animation:split 1.4s cubic-bezier(.2,.8,.2,1) both}
 .hero h1 .main{position:relative;color:var(--text)}
 @keyframes split{from{transform:translate(0,0);opacity:0}30%{opacity:1}}
 .hero p.role{margin-top:36px;font-size:clamp(1.1rem,2.2vw,1.5rem);font-weight:500;max-width:34ch}
 .hero p.sub{margin-top:12px;color:var(--muted);max-width:52ch}
 .cta{display:flex;gap:14px;margin-top:36px;flex-wrap:wrap}
 .btn{display:inline-block;padding:13px 26px;border-radius:999px;font-weight:600;font-size:.95rem;transition:transform .2s,background .2s}
-.btn.primary{background:var(--orange);color:#14090a}
-.btn.primary:hover{transform:translateY(-2px);background:#ff8d3a}
+.btn.primary{background:var(--orange);color:#050505}
+.btn.primary:hover{transform:translateY(-2px);background:#d4d4d4}
 .btn.ghost-btn{border:1px solid var(--line);color:var(--text)}
-.btn.ghost-btn:hover{border-color:var(--blue);background:rgba(47,123,255,.1)}
-.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.6;z-index:0}
-.hero-video.off{display:none}
-.hero-shade{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(10,12,20,.85) 0%,rgba(10,12,20,.35) 60%,rgba(10,12,20,.15) 100%),linear-gradient(180deg,rgba(10,12,20,0) 55%,var(--bg) 100%)}
+.btn.ghost-btn:hover{border-color:var(--blue);background:rgba(255,255,255,.06)}
+.hero-bg{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 12%,#000 88%,transparent 100%);
+          mask-image:linear-gradient(90deg,transparent 0,#000 12%,#000 88%,transparent 100%)}
+.hero-rows{position:absolute;left:-10%;right:-10%;top:-12%;bottom:-12%;display:flex;flex-direction:column;gap:14px;transform:rotate(-6deg)}
+.row{flex:1;min-height:0;display:flex;overflow:hidden}
+.track{display:flex;gap:14px;height:100%;width:max-content;will-change:transform;animation:slide var(--dur,90s) linear infinite;animation-delay:var(--delay,0s)}
+.row.right .track{animation-direction:reverse}
+.track img{height:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;flex:none;
+  filter:grayscale(1) brightness(.55) contrast(1.1);opacity:.75;border:1px solid rgba(255,255,255,.06)}
+@keyframes slide{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+.hero-shade{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(120% 90% at 20% 50%,rgba(5,5,5,.78) 0%,rgba(5,5,5,.45) 55%,rgba(5,5,5,.25) 100%),linear-gradient(180deg,rgba(5,5,5,.5) 0%,rgba(5,5,5,0) 25%,rgba(5,5,5,0) 60%,var(--bg) 100%)}
 .hero .wrap{position:relative;z-index:2}
 
 /* Sections */
@@ -66,17 +75,17 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
 /* Projets */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:28px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .25s}
-.card:hover{border-color:#3b4668}
+.card:hover{border-color:#444}
 .player{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer;border:0;width:100%;display:block;padding:0}
 .player img,.player iframe{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border:0}
 .player img{transition:transform .5s}
 .card:hover .player img{transform:scale(1.04)}
-.play{position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;background:rgba(10,12,20,.7);border:2px solid #fff;display:grid;place-items:center;transition:background .2s,transform .2s}
+.play{position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;background:rgba(5,5,5,.7);border:2px solid #fff;display:grid;place-items:center;transition:background .2s,transform .2s}
 .play::after{content:"";margin-left:5px;border-style:solid;border-width:10px 0 10px 17px;border-color:transparent transparent transparent #fff}
-.player:hover .play{background:var(--orange);border-color:var(--orange);transform:scale(1.08)}
+.player:hover .play{background:rgba(255,255,255,.22);border-color:#fff;transform:scale(1.08)}
 .info{padding:20px 22px 24px}
 .tag{display:inline-block;font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:999px;border:1px solid currentColor;margin-bottom:12px}
-.tag.solo{color:var(--orange)} .tag.duo{color:#b78cff} .tag.team{color:var(--blue)}
+.tag.solo{color:#fff} .tag.duo{color:#b5b5b5} .tag.team{color:#7d7d7d}
 .info h3{font-family:var(--display);font-weight:500;font-size:1.05rem;line-height:1.35;margin-bottom:8px}
 .info p{color:var(--muted);font-size:.95rem}
 .info a.yt{display:inline-block;margin-top:14px;font-size:.9rem;font-weight:600;color:var(--text);border-bottom:1px solid var(--line)}
@@ -84,9 +93,9 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4re
 
 /* Case "See more" */
 .more{align-items:center;justify-content:center;text-align:center;gap:14px;min-height:280px;padding:32px;border-style:dashed;background:transparent}
-.more:hover{border-color:var(--orange);background:rgba(255,122,26,.06)}
+.more:hover{border-color:var(--orange);background:rgba(255,255,255,.04)}
 .more .arrow{width:56px;height:56px;border-radius:50%;border:2px solid var(--orange);color:var(--orange);display:grid;place-items:center;font-size:1.5rem;transition:transform .2s,background .2s,color .2s}
-.more:hover .arrow{background:var(--orange);color:#14090a;transform:translateX(4px)}
+.more:hover .arrow{background:var(--orange);color:#050505;transform:translateX(4px)}
 .more h3{font-family:var(--display);font-weight:500;font-size:1.05rem}
 .more p{color:var(--muted);font-size:.95rem}
 
@@ -128,9 +137,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
 
 <main id="top">
   <div class="hero">
-    <video class="hero-video" id="heroVideo" autoplay muted loop playsinline preload="auto" poster="hero-poster.jpg" aria-hidden="true">
-  <source src="hero-web.mp4" type="video/mp4">
-    </video>
+    <div class="hero-bg" id="heroBg" aria-hidden="true"><div class="hero-rows" id="heroRows"></div></div>
     <div class="hero-shade" aria-hidden="true"></div>
     <div class="wrap">
       <h1 aria-label="Lny VFX">
@@ -164,19 +171,19 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
         <p>Find my work and reach out on any platform.</p>
       </div>
       <div class="socials">
-        <a class="social" style="--c:#ff3b3b" href="http://www.youtube.com/@LnyVFX" target="_blank" rel="noopener">
+        <a class="social" style="--c:#e6e6e6" href="http://www.youtube.com/@LnyVFX" target="_blank" rel="noopener">
           <span class="ico"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z"/></svg></span>
           <span><b>YouTube</b><small>@LnyVFX</small></span>
         </a>
-        <a class="social" style="--c:#25f4ee" href="https://www.tiktok.com/@littlelny" target="_blank" rel="noopener">
+        <a class="social" style="--c:#e6e6e6" href="https://www.tiktok.com/@littlelny" target="_blank" rel="noopener">
           <span class="ico"><svg viewBox="0 0 24 24"><path d="M19.6 6.7a5.2 5.2 0 0 1-3.2-1.1A5.2 5.2 0 0 1 14.9 2h-3.4v13.4a2.9 2.9 0 1 1-2-2.8V9.1a6.3 6.3 0 1 0 5.4 6.3V9.2a8.6 8.6 0 0 0 4.7 1.4V7.2c-.1 0-.2-.5 0-.5z"/></svg></span>
           <span><b>TikTok</b><small>@littlelny</small></span>
         </a>
-        <a class="social" style="--c:#7b86ff" href="https://discord.gg/mYUWVQwc2W" target="_blank" rel="noopener">
+        <a class="social" style="--c:#e6e6e6" href="https://discord.gg/mYUWVQwc2W" target="_blank" rel="noopener">
           <span class="ico"><svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.74 19.74 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.292a.074.074 0 0 1 .078-.01c3.927 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .079.009c.12.1.246.198.373.293a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg></span>
           <span><b>Discord</b><small>Join the server</small></span>
         </a>
-        <a class="social" style="--c:#8fb4ff" href="https://x.com/lnyvfx" target="_blank" rel="noopener">
+        <a class="social" style="--c:#e6e6e6" href="https://x.com/lnyvfx" target="_blank" rel="noopener">
           <span class="ico"><svg viewBox="0 0 24 24"><path d="M18.2 2.3h3.3l-7.2 8.3 8.5 11.2h-6.7l-5.2-6.8-6 6.8H1.6l7.7-8.8L1.2 2.3H8l4.7 6.2 5.5-6.2zm-1.2 17.5h1.8L7 4.2H5.1L17 19.8z"/></svg></span>
           <span><b>Twitter / X</b><small>@lnyvfx</small></span>
         </a>
@@ -215,11 +222,40 @@ const projects = [
    desc:"A solo edit, trying a different style and different 3D techniques"}
 ];
 
-const hv = document.getElementById('heroVideo');
-if (hv) {
-  hv.querySelector('source').addEventListener('error', () => hv.classList.add('off'));
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { hv.removeAttribute('autoplay'); hv.pause(); }
-}
+// Extra thumbnails used ONLY in the hero background (not listed in Projects)
+const bgOnly = [
+  {id:"e_FYaQPYzNQ"},
+  {id:"g-zf_K4XYnc"},
+  {id:"ixwpaMofYTU"}
+];
+
+// Hero background: 5 rows of shuffled thumbnails, alternating directions
+(function(){
+  const rows = document.getElementById('heroRows');
+  if (!rows) return;
+  const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+  const dirs = shuffle(['left','left','left','right','right']);   // 3 rows one way, 2 the other
+  const durs = [95, 120, 80, 110, 100];                           // slow, each row a different speed
+  dirs.forEach((dir, i) => {
+    const row = document.createElement('div');
+    row.className = 'row ' + dir;
+    const track = document.createElement('div');
+    track.className = 'track';
+    track.style.setProperty('--dur', (durs[i] + Math.random()*15) + 's');
+    track.style.setProperty('--delay', (-Math.random()*durs[i]) + 's'); // random start position
+    const order = shuffle(projects.concat(bgOnly));
+    // two identical halves (each repeated twice) => seamless loop, even on wide screens
+    const half = order.concat(order);
+    half.concat(half).forEach(p => {
+      const img = document.createElement('img');
+      img.src = `https://i.ytimg.com/vi/${p.id}/hqdefault.jpg`;
+      img.alt = ''; img.decoding = 'async'; img.draggable = false;
+      track.appendChild(img);
+    });
+    row.appendChild(track);
+    rows.appendChild(row);
+  });
+})();
 
 const grid = document.getElementById('grid');
 projects.forEach(p => {

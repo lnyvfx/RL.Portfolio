@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project – LnyVFX</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23050505'/%3E%3Cpath d='M20 14h10v26h14v10H20z' fill='%23666666' transform='translate(-3 0)'/%3E%3Cpath d='M20 14h10v26h14v10H20z' fill='%23bbbbbb' transform='translate(3 0)'/%3E%3Cpath d='M20 14h10v26h14v10H20z' fill='%23ffffff'/%3E%3C/svg%3E">
+<meta name="description" content="Project by Lny: VFX & 3D editor specialized in Rocket League.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050505; --surface:#0e0e0e; --line:#222;
+  --text:#f2f2f2; --muted:#8a8a8a;
+  --display:'Unbounded','Arial Black',system-ui,sans-serif;
+  --body:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+/* Header */
+header{position:sticky;top:0;z-index:20;background:rgba(5,5,5,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-family:var(--display);font-weight:900;font-size:1.05rem;letter-spacing:.02em}
+.logo span{color:#fff}
+nav{display:flex;gap:28px;font-size:.95rem;color:var(--muted);align-items:center}
+nav a:hover{color:var(--text)}
+@media(max-width:560px){nav{gap:16px;font-size:.85rem}.logo{font-size:.9rem}}
+
+/* Page projet */
+main{padding:36px 0 90px}
+.back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:.92rem;font-weight:600;margin-bottom:22px;transition:color .2s,transform .2s}
+.back:hover{color:var(--text);transform:translateX(-3px)}
+
+.bento{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;animation:rise .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:clamp(22px,2.6vw,36px);min-width:0}
+.label{display:block;font-size:.74rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+
+.thumb{grid-column:1/9;padding:0;overflow:hidden;aspect-ratio:16/9;background:#000}
+.thumb img{display:block;width:100%;height:100%;object-fit:cover}
+.side{grid-column:9/13;display:flex;flex-direction:column;gap:12px;min-width:0}
+.name{flex:1;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;gap:0}
+.name h1{font-family:var(--display);font-weight:700;font-size:clamp(1.5rem,2.6vw,2.2rem);line-height:1.15;letter-spacing:-.01em;margin-bottom:16px;overflow-wrap:anywhere}
+.tag{display:inline-block;font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:999px;border:1px solid currentColor;margin-bottom:14px}
+.tag.solo{color:#fff} .tag.duo{color:#b5b5b5} .tag.team{color:#7d7d7d}
+.meta{display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin-bottom:18px}
+.meta li{font-size:.82rem;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 12px}
+.btn{display:inline-block;padding:12px 24px;border-radius:999px;font-weight:600;font-size:.95rem;background:#fff;color:#050505;transition:transform .2s,background .2s;margin-top:auto}
+.btn:hover{transform:translateY(-2px);background:#d4d4d4}
+.team-box .tname{font-family:var(--display);font-weight:700;font-size:clamp(1.2rem,2vw,1.6rem)}
+
+.about{grid-column:1/13}
+.about p{font-size:clamp(1rem,1.3vw,1.15rem);color:#d2d2d2;max-width:75ch;white-space:pre-line}
+.bd{grid-column:1/13}
+.soon{display:grid;place-items:center;min-height:180px;border:1px dashed #333;border-radius:12px;text-align:center;color:var(--muted);font-family:var(--display);font-weight:500;font-size:clamp(1rem,2vw,1.3rem);letter-spacing:.02em}
+
+/* Breakdown (quand il y en a) */
+.bd-tabs{display:flex;gap:8px;margin-bottom:18px}
+.bd-tabs button{font:inherit;font-size:.85rem;font-weight:600;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 16px;cursor:pointer;transition:color .2s,border-color .2s,background .2s}
+.bd-tabs button:hover{color:var(--text);border-color:#555}
+.bd-tabs button.on{color:#050505;background:#fff;border-color:#fff}
+.bd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+.bd-item{background:#0b0b0b;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.bd-item video,.bd-item>img,.bd-item .yt{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#000;border:0;position:relative;padding:0;cursor:pointer}
+.bd-item .yt img,.bd-item .yt iframe{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border:0}
+.play{position:absolute;left:50%;top:50%;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;background:rgba(5,5,5,.7);border:2px solid #fff;transition:background .2s,transform .2s}
+.play::after{content:"";position:absolute;left:23px;top:16px;border-style:solid;border-width:10px 0 10px 17px;border-color:transparent transparent transparent #fff}
+.yt:hover .play{background:rgba(255,255,255,.22);transform:scale(1.08)}
+.bd-info{padding:14px 16px 18px}
+.bd-info .tag{margin-bottom:8px}
+.bd-info h5{font-family:var(--display);font-weight:500;font-size:.95rem;line-height:1.35;margin-bottom:4px}
+.bd-info p{color:var(--muted);font-size:.9rem}
+
+/* Projet précédent / suivant */
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.pager a{display:flex;flex-direction:column;gap:4px;padding:20px 24px;background:var(--surface);border:1px solid var(--line);border-radius:18px;transition:border-color .2s,background .2s}
+.pager a:hover{border-color:#555;background:#141414}
+.pager a:last-child{text-align:right}
+.pager small{color:var(--muted);font-size:.78rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+.pager b{font-family:var(--display);font-weight:500;font-size:clamp(.9rem,1.5vw,1.1rem);line-height:1.3}
+
+footer{padding:36px 0;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+@media(max-width:860px){
+  .thumb,.side,.about,.bd{grid-column:1/-1}
+  .name{justify-content:flex-start}
+  .name h1{margin-top:2px}
+  .btn{margin-top:6px}
+}
+@media(max-width:560px){.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo" href="index.html">LNY<span>.</span>VFX</a>
+    <nav>
+      <a href="index.html#projects">Projects</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap" id="page"></div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Lny VFX</span>
+    <span>Email : lnyvfx@gmail.com</span>
+    <span>VFX & 3D editor – Rocket League</span>
+  </div>
+</footer>
+
+<script src="projects.js"></script>
+<script>
+const page = document.getElementById('page');
+const id = new URLSearchParams(location.search).get('id');
+const idx = projects.findIndex(p => p.id === id);
+const esc = t => String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const isFile = location.protocol === 'file:';
+
+if (idx < 0) {
+  document.title = 'Project not found – LnyVFX';
+  page.innerHTML = `<a class="back" href="index.html#projects">← All projects</a>
+    <div class="bento"><div class="box about"><span class="label">404</span><p>This project doesn’t exist (anymore). Go back to the <a href="index.html#projects" style="text-decoration:underline">projects</a>.</p></div></div>`;
+} else {
+  const p = projects[idx];
+  document.title = `${p.title} – LnyVFX`;
+  const meta = [p.year, p.role].concat(p.tools || []).filter(Boolean);
+  const prev = projects[(idx - 1 + projects.length) % projects.length];
+  const next = projects[(idx + 1) % projects.length];
+  const list = p.breakdown || [];
+  const href = q => `project.html?id=${encodeURIComponent(q.id)}`;
+
+  page.innerHTML = `
+    <a class="back" href="index.html#projects">← All projects</a>
+    <div class="bento">
+      <div class="box thumb"><img id="thumb" alt="Thumbnail of ${esc(p.title)}"></div>
+      <div class="side">
+        <div class="box name">
+          <span class="tag ${esc(p.type)}">${esc(p.label)}</span>
+          <h1>${esc(p.title)}</h1>
+          ${meta.length ? `<ul class="meta">${meta.map(m => `<li>${esc(m)}</li>`).join('')}</ul>` : ''}
+          <a class="btn" href="https://youtu.be/${esc(p.id)}" target="_blank" rel="noopener">Watch on YouTube</a>
+        </div>
+        ${p.team ? `<div class="box team-box"><span class="label">Team</span><div class="tname">${esc(p.team)}</div></div>` : ''}
+      </div>
+      <div class="box about"><span class="label">About the project</span><p id="about"></p></div>
+      <div class="box bd">
+        <span class="label">Breakdown</span>
+        <div id="bdBody"></div>
+      </div>
+    </div>
+    <nav class="pager" aria-label="Other projects">
+      <a href="${href(prev)}"><small>← Previous</small><b>${esc(prev.title)}</b></a>
+      <a href="${href(next)}"><small>Next →</small><b>${esc(next.title)}</b></a>
+    </nav>`;
+
+  setThumb(document.getElementById('thumb'), p.id);
+  document.getElementById('about').textContent = p.long || p.desc;
+
+  // ---- Breakdown ----
+  const body = document.getElementById('bdBody');
+  if (!list.length) {
+    body.innerHTML = `<div class="soon">Coming soon</div>`;
+  } else {
+    const labelOf = k => k === '3d' ? '3D' : 'VFX';
+    const grid = document.createElement('div');
+    grid.className = 'bd-grid';
+    list.forEach(b => {
+      const el = document.createElement('article');
+      el.className = 'bd-item'; el.dataset.kind = b.kind;
+      if (b.yt) {
+        const btn = document.createElement('button');
+        btn.className = 'yt'; btn.setAttribute('aria-label', 'Play ' + (b.title || 'breakdown'));
+        btn.innerHTML = `<img alt=""><span class="play"></span>`;
+        setThumb(btn.querySelector('img'), b.yt);
+        btn.addEventListener('click', () => {
+          if (isFile) { window.open(`https://youtu.be/${b.yt}`, '_blank', 'noopener'); return; }
+          const box = document.createElement('div'); box.className = 'yt'; box.style.cursor = 'default';
+          box.innerHTML = `<iframe src="https://www.youtube.com/embed/${b.yt}?autoplay=1&rel=0&origin=${encodeURIComponent(location.origin)}" title="${esc(b.title || 'Breakdown')}" allow="accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+          btn.replaceWith(box);
+        });
+        el.appendChild(btn);
+      } else if (b.src) {
+        const v = document.createElement('video'); v.src = b.src; v.controls = true; v.preload = 'metadata'; v.playsInline = true; el.appendChild(v);
+      } else if (b.img) {
+        const i = document.createElement('img'); i.src = b.img; i.alt = b.title || 'Breakdown'; i.loading = 'lazy'; el.appendChild(i);
+      }
+      const info = document.createElement('div'); info.className = 'bd-info';
+      info.innerHTML = `<span class="tag ${b.kind === '3d' ? 'duo' : 'solo'}">${labelOf(b.kind)}</span>` +
+        (b.title ? `<h5>${esc(b.title)}</h5>` : '') + (b.desc ? `<p>${esc(b.desc)}</p>` : '');
+      el.appendChild(info);
+      grid.appendChild(el);
+    });
+    const kinds = [...new Set(list.map(b => b.kind))];
+    if (kinds.length > 1) {
+      const tabs = document.createElement('div'); tabs.className = 'bd-tabs';
+      ['all', ...kinds].forEach((k, i) => {
+        const t = document.createElement('button');
+        t.textContent = k === 'all' ? 'All' : labelOf(k);
+        if (!i) t.className = 'on';
+        t.addEventListener('click', () => {
+          tabs.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === t));
+          grid.querySelectorAll('.bd-item').forEach(x => x.hidden = k !== 'all' && x.dataset.kind !== k);
+        });
+        tabs.appendChild(t);
+      });
+      body.appendChild(tabs);
+    }
+    body.appendChild(grid);
+  }
+}
+</script>
+</body>
+</html>

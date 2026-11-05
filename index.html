@@ -18,6 +18,7 @@
   --body:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
@@ -72,32 +73,21 @@ section{padding:90px 0}
 h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.5vw,2.4rem);letter-spacing:-.01em}
 .head p{color:var(--muted)}
 
-/* Projets */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:28px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .25s}
-.card:hover{border-color:#444}
-.player{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer;border:0;width:100%;display:block;padding:0}
-.player img,.player iframe{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border:0}
-.player img{transition:transform .5s}
-.card:hover .player img{transform:scale(1.04)}
-.play{position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;background:rgba(5,5,5,.7);border:2px solid #fff;display:grid;place-items:center;transition:background .2s,transform .2s}
-.play::after{content:"";margin-left:5px;border-style:solid;border-width:10px 0 10px 17px;border-color:transparent transparent transparent #fff}
-.player:hover .play{background:rgba(255,255,255,.22);border-color:#fff;transform:scale(1.08)}
-.info{padding:20px 22px 24px}
-.tag{display:inline-block;font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:999px;border:1px solid currentColor;margin-bottom:12px}
-.tag.solo{color:#fff} .tag.duo{color:#b5b5b5} .tag.team{color:#7d7d7d}
-.info h3{font-family:var(--display);font-weight:500;font-size:1.05rem;line-height:1.35;margin-bottom:8px}
-.info p{color:var(--muted);font-size:.95rem}
-.info a.yt{display:inline-block;margin-top:14px;font-size:.9rem;font-weight:600;color:var(--text);border-bottom:1px solid var(--line)}
-.info a.yt:hover{border-color:var(--orange)}
-
-/* Case "See more" */
-.more{align-items:center;justify-content:center;text-align:center;gap:14px;min-height:280px;padding:32px;border-style:dashed;background:transparent}
-.more:hover{border-color:var(--orange);background:rgba(255,255,255,.04)}
-.more .arrow{width:56px;height:56px;border-radius:50%;border:2px solid var(--orange);color:var(--orange);display:grid;place-items:center;font-size:1.5rem;transition:transform .2s,background .2s,color .2s}
-.more:hover .arrow{background:var(--orange);color:#050505;transform:translateX(4px)}
-.more h3{font-family:var(--display);font-weight:500;font-size:1.05rem}
-.more p{color:var(--muted);font-size:.95rem}
+/* Projets : mosaïque pleine largeur */
+#projects .wrap{max-width:none;padding:0 clamp(12px,2vw,32px)}
+.mosaic{display:grid;grid-template-columns:repeat(var(--cols,12),1fr);grid-template-rows:repeat(var(--rows,14),1fr);gap:4px}
+.tile{position:relative;display:block;overflow:hidden;border-radius:6px;background:#111;color:var(--text);text-align:left;cursor:pointer;container-type:inline-size;min-width:0;min-height:0}
+.tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.8);transition:transform .7s cubic-bezier(.2,.8,.2,1),filter .4s}
+.tile::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,5,0) 40%,rgba(5,5,5,.9) 100%);pointer-events:none}
+.tile h3{position:absolute;z-index:2;left:clamp(12px,5cqw,24px);right:clamp(12px,5cqw,24px);bottom:clamp(10px,4cqw,20px);font-family:var(--display);font-weight:500;font-size:clamp(.78rem,4.6cqw,1.4rem);line-height:1.25;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.tile:hover img,.tile:focus-visible img{transform:scale(1.07);filter:brightness(1)}
+.tile:focus-visible{outline-offset:-3px}
+.tile.more{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;background:var(--surface);border:1px dashed #333;transition:border-color .25s,background .25s}
+.tile.more::after{display:none}
+.tile.more:hover{border-color:#bbb;background:#141414}
+.tile.more .arrow{width:clamp(36px,12cqw,56px);height:clamp(36px,12cqw,56px);border-radius:50%;border:2px solid #fff;display:grid;place-items:center;font-size:1.3rem;transition:transform .2s,background .2s,color .2s}
+.tile.more:hover .arrow{background:#fff;color:#050505;transform:translateX(4px)}
+.tile.more h3{position:static;font-size:clamp(.8rem,5cqw,1.1rem)}
 
 /* Contact */
 .contact{border-top:1px solid var(--line)}
@@ -114,7 +104,6 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
 
 @media(max-width:640px){
   nav{gap:18px}
-  .grid{grid-template-columns:1fr}
   .hero{padding:70px 0 60px}
 }
 @media(prefers-reduced-motion:reduce){
@@ -160,7 +149,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
         <h2>Projects</h2>
         <p>*This is not ALL my works its a selection.</p>
       </div>
-      <div class="grid" id="grid"></div>
+      <div class="mosaic" id="mosaic"></div>
     </div>
   </section>
 
@@ -200,35 +189,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
   </div>
 </footer>
 
+<script src="projects.js"></script>
 <script>
-const projects = [
-  {id:"RL5rxCky1cA", title:"Echo Chamber", type:"team", label:"Team project",
-   desc:"The Team Nixus halloween special 2026."},
-  {id:"jTG4uRBdb40", title:"Kickstart", type:"solo", label:"solo edit",
-   desc:"A solo edit, client work for Team Soul."},
-  {id:"PTPKU8zK7hM", title:"Voracity", type:"duo", label:"Duo edit",
-   desc:"A duo edit with @Bazill blending visual effects and rhythm to showcase the gameplay."},
-  {id:"z1bxOp29GUc", title:"Revolver", type:"team", label:"Team project",
-   desc:"A collective project where each editor brings their own style to a spooky edit."},
-  {id:"r1OqFtoUvqM", title:"Nixus Christmas Special 2025", type:"team", label:"Team project",
-   desc:"The 2025 Christmas special, made with the Nixus team."},
-  {id:"DdnWmGHrbAQ", title:"ALL IN MOTION (4K)", type:"solo", label:"Solo edit",
-   desc:"A solo edit with some really good 3D improvement"},
-  {id:"5gwjbs27fx0", title:"RLFX Best of France", type:"team", label:"My part",
-   desc:"My part in RLFX, the project bringing together the best French editors."},
-  {id:"RAwW1-0ps9w", title:"I SEEEE YOU BABY BOI", type:"solo", label:"Solo edit",
-   desc:"A solo edit, trying to be smooth and have a good pace"},
-  {id:"8VCnqffQulU", title:"5ONJOUR", type:"solo", label:"Solo edit",
-   desc:"A solo edit, trying a different style and different 3D techniques"}
-];
-
-// Extra thumbnails used ONLY in the hero background (not listed in Projects)
-const bgOnly = [
-  {id:"e_FYaQPYzNQ"},
-  {id:"g-zf_K4XYnc"},
-  {id:"ixwpaMofYTU"}
-];
-
 // Hero background: 5 rows of shuffled thumbnails, alternating directions
 (function(){
   const rows = document.getElementById('heroRows');
@@ -257,48 +219,83 @@ const bgOnly = [
   });
 })();
 
-const grid = document.getElementById('grid');
-projects.forEach(p => {
-  const card = document.createElement('article');
-  card.className = 'card';
-  card.innerHTML = `
-    <button class="player" aria-label="Play video ${p.title}">
-      <img src="https://i.ytimg.com/vi/${p.id}/maxresdefault.jpg" alt="Thumbnail of ${p.title}" loading="lazy">
-      <span class="play"></span>
-    </button>
-    <div class="info">
-      <span class="tag ${p.type}">${p.label}</span>
-      <h3>${p.title}</h3>
-      <p>${p.desc}</p>
-      <a class="yt" href="https://youtu.be/${p.id}" target="_blank" rel="noopener">Watch on YouTube</a>
-    </div>`;
-  const img = card.querySelector('img');
-  img.addEventListener('error', () => {
-    if (!img.dataset.fb) { img.dataset.fb = 1; img.src = `https://i.ytimg.com/vi/${p.id}/hqdefault.jpg`; }
+// ---------- mosaïque : découpage aléatoire sans trous ----------
+// On découpe un rectangle (cols x rows) en n morceaux par coupes successives
+// => tailles aléatoires, tous collés, aucun espace vide.
+function splitRect(r, n, o) {
+  if (n === 1) return [r];
+  const pw = r.w, ph = r.h * o.rr;
+  const first = pw > ph ? Math.random() < .75 : Math.random() < .25; // coupe verticale ?
+  for (const vert of [first, !first]) {
+    const size = vert ? r.w : r.h, min = vert ? o.minW : o.minH;
+    if (size < min * 2) continue;
+    const k = 1 + Math.floor(Math.random() * (n - 1));
+    let pos = Math.round(size * k / n + (Math.random() - .5) * size * .3);
+    pos = Math.max(min, Math.min(size - min, pos));
+    const A = vert ? {x:r.x, y:r.y, w:pos, h:r.h} : {x:r.x, y:r.y, w:r.w, h:pos};
+    const B = vert ? {x:r.x+pos, y:r.y, w:r.w-pos, h:r.h} : {x:r.x, y:r.y+pos, w:r.w, h:r.h-pos};
+    const sa = splitRect(A, k, o); if (!sa) continue;
+    const sb = splitRect(B, n - k, o); if (!sb) continue;
+    return sa.concat(sb);
+  }
+  return null;
+}
+function makeLayout(n, o) {
+  const okAspect = (lo, hi) => p => { const a = p.w / (p.h * o.rr); return a >= lo && a <= hi; };
+  for (const [lo, hi, tries] of [[o.lo, o.hi, 600], [.6, 4, 400]]) {
+    for (let t = 0; t < tries; t++) {
+      const res = splitRect({x:0, y:0, w:o.cols, h:o.rows}, n, o);
+      if (res && res.every(okAspect(lo, hi))) return res;
+    }
+  }
+  return null;
+}
+
+const mosaic = document.getElementById('mosaic');
+const mq = matchMedia('(max-width: 760px)');
+
+function buildMosaic() {
+  const items = projects.map(p => ({p})).concat([{more:true}]);
+  const n = items.length;
+  const o = mq.matches
+    ? {cols:4,  rr:.5, minW:2, minH:4, lo:.7, hi:2.2, avg:10.4}
+    : {cols:12, rr:.5, minW:3, minH:3, lo:.9, hi:2.9, avg:17};
+  o.rows = Math.max(8, Math.round(n * o.avg / o.cols));
+  let rects = makeLayout(n, o);
+  if (!rects) { // secours : grille régulière
+    const c = mq.matches ? 2 : 4, w = o.cols / c, h = Math.ceil(n / c);
+    o.rows = h * 6;
+    rects = items.map((_, i) => ({x:(i % c) * w, y:Math.floor(i / c) * 6, w, h:6}));
+  }
+  rects.sort((a, b) => a.y - b.y || a.x - b.x);       // ordre de lecture
+  mosaic.style.setProperty('--cols', o.cols);
+  mosaic.style.setProperty('--rows', o.rows);
+  mosaic.style.aspectRatio = o.cols / (o.rows * o.rr);
+  mosaic.innerHTML = '';
+  items.forEach((it, i) => {
+    const r = rects[i];
+    let el;
+    if (it.more) {
+      el = document.createElement('a');
+      el.className = 'tile more';
+      el.href = 'https://www.youtube.com/@LnyVFX/playlists';
+      el.target = '_blank'; el.rel = 'noopener';
+      el.innerHTML = `<span class="arrow">→</span><h3>See more</h3>`;
+    } else {
+      el = document.createElement('a');
+      el.className = 'tile';
+      el.href = 'project.html?id=' + encodeURIComponent(it.p.id);
+      el.setAttribute('aria-label', 'Open project ' + it.p.title);
+      el.innerHTML = `<img alt="" loading="lazy"><h3>${it.p.title}</h3>`;
+      setThumb(el.querySelector('img'), it.p.id);
+    }
+    el.style.gridColumn = `${r.x + 1} / span ${r.w}`;
+    el.style.gridRow = `${r.y + 1} / span ${r.h}`;
+    mosaic.appendChild(el);
   });
-  // maxresdefault renvoie une petite image grise si absente
-  img.addEventListener('load', () => {
-    if (img.naturalWidth <= 120 && !img.dataset.fb) { img.dataset.fb = 1; img.src = `https://i.ytimg.com/vi/${p.id}/hqdefault.jpg`; }
-  });
-  const btn = card.querySelector('.player');
-  btn.addEventListener('click', () => {
-    // YouTube refuses embeds on pages opened as a local file (file://) – open it on YouTube instead
-    if (location.protocol === 'file:') { window.open(`https://youtu.be/${p.id}`, '_blank', 'noopener'); return; }
-    const wrap = document.createElement('div');
-    wrap.className = 'player';
-    wrap.style.cursor = 'default';
-    wrap.innerHTML = `<iframe src="https://www.youtube.com/embed/${p.id}?autoplay=1&rel=0&origin=${encodeURIComponent(location.origin)}" title="${p.title}" allow="accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
-    btn.replaceWith(wrap);
-  });
-  grid.appendChild(card);
-});
-const more = document.createElement('a');
-more.className = 'card more';
-more.href = 'https://www.youtube.com/@LnyVFX/playlists';
-more.target = '_blank';
-more.rel = 'noopener';
-more.innerHTML = `<span class="arrow">→</span><h3>See more</h3><p>Browse all my playlists on YouTube</p>`;
-grid.appendChild(more);
+}
+buildMosaic();
+mq.addEventListener('change', buildMosaic);
 </script>
 </body>
 </html>

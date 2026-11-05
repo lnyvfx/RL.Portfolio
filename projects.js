@@ -52,7 +52,9 @@ const projects = [
   {id:"RAwW1-0ps9w", title:"I SEEEE YOU BABY BOI", type:"solo", label:"Solo edit",
    desc:"A solo edit, trying to be smooth and have a good pace"},
   {id:"8VCnqffQulU", title:"5ONJOUR", type:"solo", label:"Solo edit",
-   desc:"A solo edit, trying a different style and different 3D techniques"}
+   desc:"A solo edit, trying a different style and different 3D techniques", breakdown:[
+     {kind:"3d", title:"Car morphing effect", desc:"how I managed to create a cool car morphing effect from an octane to a fennec in Blender", src:"breakdowns/Breakdown_1_5ONJOUR.mp4", poster:"breakdowns/Breakdown_1_5ONJOUR.jpg"}
+   ]}
 ];
 
 // Extra thumbnails used ONLY in the hero background (not listed in Projects)

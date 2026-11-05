@@ -219,36 +219,89 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
   });
 })();
 
-// ---------- mosaïque : découpage aléatoire sans trous ----------
-// On découpe un rectangle (cols x rows) en n morceaux par coupes successives
-// => tailles aléatoires, tous collés, aucun espace vide.
-function splitRect(r, n, o) {
-  if (n === 1) return [r];
-  const pw = r.w, ph = r.h * o.rr;
-  const first = pw > ph ? Math.random() < .75 : Math.random() < .25; // coupe verticale ?
-  for (const vert of [first, !first]) {
-    const size = vert ? r.w : r.h, min = vert ? o.minW : o.minH;
-    if (size < min * 2) continue;
-    const k = 1 + Math.floor(Math.random() * (n - 1));
-    let pos = Math.round(size * k / n + (Math.random() - .5) * size * .3);
-    pos = Math.max(min, Math.min(size - min, pos));
-    const A = vert ? {x:r.x, y:r.y, w:pos, h:r.h} : {x:r.x, y:r.y, w:r.w, h:pos};
-    const B = vert ? {x:r.x+pos, y:r.y, w:r.w-pos, h:r.h} : {x:r.x, y:r.y+pos, w:r.w, h:r.h-pos};
-    const sa = splitRect(A, k, o); if (!sa) continue;
-    const sb = splitRect(B, n - k, o); if (!sb) continue;
-    return sa.concat(sb);
-  }
-  return null;
-}
-function makeLayout(n, o) {
-  const okAspect = (lo, hi) => p => { const a = p.w / (p.h * o.rr); return a >= lo && a <= hi; };
-  for (const [lo, hi, tries] of [[o.lo, o.hi, 600], [.6, 4, 400]]) {
-    for (let t = 0; t < tries; t++) {
-      const res = splitRect({x:0, y:0, w:o.cols, h:o.rows}, n, o);
-      if (res && res.every(okAspect(lo, hi))) return res;
+// ---------- mosaïque : bandes de hauteurs variables, tailles aléatoires ----------
+// Chaque "bande" (rangée) a sa propre hauteur et se remplit exactement avec des
+// tuiles de largeurs différentes ; certaines colonnes sont coupées en 2 tuiles
+// empilées. Chaque tuile garde un ratio proche du 16:9 => la miniature n'est jamais
+// écrasée, et il n'y a aucun trou. Marche pour n'importe quel nombre de projets.
+const shuf = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+function fillBand(h, t, o) {
+  const asp = (c, hh) => c / (hh * o.rr);
+  const okT = (c, hh) => { const a = asp(c, hh); return a >= o.lo && a <= o.hi; };
+  const singles = [], stacks = [];
+  for (let c = o.minW; c <= o.cols; c++) {
+    if (okT(c, h)) singles.push({c, split:null});
+    if (h >= 12) {
+      const sp = [];
+      for (let h1 = 5; h1 <= h - 5; h1++) if (okT(c, h1) && okT(c, h - h1)) sp.push(h1);
+      if (sp.length) stacks.push({c, split:sp[Math.floor(Math.random() * sp.length)]});
     }
   }
-  return null;
+  const dfs = (remW, remT) => {
+    if (remW === 0) return remT === 0 ? [] : null;
+    if (remT <= 0) return null;
+    // singles en priorité (≈70 %), piles de temps en temps
+    const cand = shuf(singles).concat(shuf(stacks));
+    if (Math.random() < .3) cand.sort(() => Math.random() - .5);
+    for (const b of cand) {
+      const k = b.split ? 2 : 1;
+      if (b.c > remW || k > remT) continue;
+      const rest = dfs(remW - b.c, remT - k);
+      if (rest) return [b].concat(rest);
+    }
+    return null;
+  };
+  return dfs(o.cols, t);
+}
+
+function tryLayout(n, o) {
+  const rects = [], hs = [];
+  let y = 0, R = n, prevH = 0;
+  while (R > 0) {
+    let done = false;
+    const opts = [];
+    for (const h of o.hs) for (let t = 2; t <= Math.min(6, R); t++) if (R - t !== 1 && !(R - t === 0 && t > 5)) opts.push([h, t]);
+    // si le reste tient dans une seule bande, on le préfère pour finir proprement
+    const sorted = shuf(opts).sort((p, q) => (q[0] !== prevH) - (p[0] !== prevH) + (Math.random() - .5) * .5);
+    for (const [h, t] of sorted) {
+      const blocks = fillBand(h, t, o);
+      if (!blocks) continue;
+      let x = 0;
+      for (const b of blocks) {
+        if (b.split) { rects.push({x, y, w:b.c, h:b.split}, {x, y:y + b.split, w:b.c, h:h - b.split}); }
+        else rects.push({x, y, w:b.c, h});
+        x += b.c;
+      }
+      y += h; R -= t; prevH = h; hs.push(h); done = true; break;
+    }
+    if (!done) return null;
+  }
+  return {rects, rows:y, hs};
+}
+
+function score(L) {
+  const { rects, hs } = L;
+  let sc = new Set(rects.map(r => r.w)).size * 2 + new Set(rects.map(r => r.h)).size + new Set(hs).size * 2;
+  for (const a of rects) for (const b of rects) {
+    if (a === b) continue;
+    const sameRow = a.y === b.y && a.x + a.w === b.x;          // voisins côte à côte
+    const sameCol = a.x === b.x && a.y + a.h === b.y;          // voisins empilés
+    if (sameRow && a.w === b.w && a.h === b.h) sc -= 4;
+    if (sameCol && a.w === b.w) sc -= 1;
+  }
+  return sc;
+}
+
+function makeLayout(n, o) {
+  let best = null, bs = -1e9;
+  for (let t = 0; t < 400 && t < 60 + 4 * n; t++) {
+    const L = tryLayout(n, o);
+    if (!L) continue;
+    const s = score(L);
+    if (s > bs) { bs = s; best = L; }
+  }
+  return best;
 }
 
 const mosaic = document.getElementById('mosaic');
@@ -258,15 +311,17 @@ function buildMosaic() {
   const items = projects.map(p => ({p})).concat([{more:true}]);
   const n = items.length;
   const o = mq.matches
-    ? {cols:4,  rr:.5, minW:2, minH:4, lo:.7, hi:2.2, avg:10.4}
-    : {cols:12, rr:.5, minW:3, minH:3, lo:.9, hi:2.9, avg:17};
-  o.rows = Math.max(8, Math.round(n * o.avg / o.cols));
-  let rects = makeLayout(n, o);
-  if (!rects) { // secours : grille régulière
-    const c = mq.matches ? 2 : 4, w = o.cols / c, h = Math.ceil(n / c);
-    o.rows = h * 6;
-    rects = items.map((_, i) => ({x:(i % c) * w, y:Math.floor(i / c) * 6, w, h:6}));
+    ? {cols:12, rr:.5, lo:1.3, hi:2.4, minW:4, hs:[6, 7, 7, 8]}
+    : {cols:24, rr:.5, lo:1.3, hi:2.4, minW:5, hs:[8, 10, 12, 14]};
+  let L = makeLayout(n, o);
+  let rects, rows;
+  if (L) { rects = L.rects; rows = L.rows; }
+  else { // secours (ne devrait jamais arriver) : rangées de 2 tuiles
+    const w = o.cols / 2, h = o.hs[1];
+    rects = items.map((_, i) => ({x:(i % 2) * w, y:Math.floor(i / 2) * h, w, h}));
+    rows = Math.ceil(n / 2) * h;
   }
+  o.rows = rows;
   rects.sort((a, b) => a.y - b.y || a.x - b.x);       // ordre de lecture
   mosaic.style.setProperty('--cols', o.cols);
   mosaic.style.setProperty('--rows', o.rows);

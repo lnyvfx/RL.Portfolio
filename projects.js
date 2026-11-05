@@ -5,26 +5,43 @@
      title, type ("solo" | "duo" | "team"), label, desc  (obligatoires)
      long      description détaillée affichée sur la page du projet
                (sinon "desc" est utilisée ; \n = retour à la ligne)
-     team      nom de la team (affiché seulement si renseigné)
+     team      clé d'une team (voir "teams" plus bas) ou nom libre ; affiché seulement si renseigné
      year, role, tools:["Blender", ...]   (optionnels, petites pastilles)
      breakdown:[
        {kind:"vfx", title:"Smoke & particles", desc:"...", yt:"ID_YOUTUBE"},
-       {kind:"3d",  title:"Wireframe", desc:"...", src:"breakdowns/x.mp4"},
+       {kind:"3d",  title:"Wireframe", desc:"...", src:"breakdowns/x.mp4", poster:"breakdowns/x.jpg"},
        {kind:"3d",  title:"Render passes", img:"breakdowns/x.jpg"}
      ]
    ============================================================ */
+/* Teams : le champ  team:"nixus"  d'un projet pointe vers une entrée ci-dessous.
+   (un nom libre, ex. team:"RLFX", affiche juste le nom sans logo ni réseaux) */
+const teams = {
+  nixus: {
+    name: "Nixus", logo: "logos/nixus.png",
+    tiktok:  "https://www.tiktok.com/@teamnixusrl",
+    youtube: "https://www.youtube.com/@TeamNixus",
+    x:       "https://x.com/TeamNixus"
+  },
+  soul: {
+    name: "Team Soul", logo: "logos/soul.png",
+    tiktok:  "https://www.tiktok.com/@team_soul_rl1",
+    youtube: "https://www.youtube.com/@TeamSoulrl",
+    x:       "https://x.com/teamsoulrl"
+  }
+};
+
 const projects = [
-  {id:"RL5rxCky1cA", title:"Echo Chamber", type:"team", label:"Team project", team:"Nixus",
+  {id:"RL5rxCky1cA", title:"Echo Chamber", type:"team", label:"Team project", team:"nixus",
    desc:"The Team Nixus halloween special 2026.", breakdown:[
      {kind:"3d", title:"Backroom effect", desc:"how I managed to recreate the Backrooms aesthetic in Blender and mix it with assets from Rocket League", src:"breakdowns/Breakdown_1_EchoChamber.mp4", poster:"breakdowns/Breakdown_1_EchoChamber.jpg"}
-   ]}, 
-  {id:"jTG4uRBdb40", title:"Kickstart", type:"solo", label:"solo edit",
+   ]},
+  {id:"jTG4uRBdb40", title:"Kickstart", type:"solo", label:"solo edit", team:"soul",
    desc:"A solo edit, client work for Team Soul."},
-  {id:"PTPKU8zK7hM", title:"Voracity", type:"duo", label:"Duo edit",
+  {id:"PTPKU8zK7hM", title:"Voracity", type:"duo", label:"Duo edit", team:"nixus",
    desc:"A duo edit with @Bazill blending visual effects and rhythm to showcase the gameplay."},
-  {id:"z1bxOp29GUc", title:"Revolver", type:"team", label:"Team project",
+  {id:"z1bxOp29GUc", title:"Revolver", type:"team", label:"Team project", team:"nixus",
    desc:"A collective project where each editor brings their own style to a spooky edit."},
-  {id:"r1OqFtoUvqM", title:"Nixus Christmas Special 2025", type:"team", label:"Team project", team:"Nixus",
+  {id:"r1OqFtoUvqM", title:"Nixus Christmas Special 2025", type:"team", label:"Team project", team:"nixus",
    desc:"The 2025 Christmas special, made with the Nixus team."},
   {id:"DdnWmGHrbAQ", title:"ALL IN MOTION (4K)", type:"solo", label:"Solo edit",
    desc:"A solo edit with some really good 3D improvement"},

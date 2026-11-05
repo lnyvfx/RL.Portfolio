@@ -38,7 +38,9 @@ const projects = [
   {id:"jTG4uRBdb40", title:"Kickstart", type:"solo", label:"solo edit", team:"soul",
    desc:"A solo edit, client work for Team Soul."},
   {id:"PTPKU8zK7hM", title:"Voracity", type:"duo", label:"Duo edit", team:"nixus",
-   desc:"A duo edit with @Bazill blending visual effects and rhythm to showcase the gameplay."},
+   desc:"A duo edit with @Bazill blending visual effects and rhythm to showcase the gameplay.", breakdown:[
+     {kind:"3d", title:"Cars hit effect", desc:"how I managed to create a cool shock effect between rocket league cars in Blender", src:"breakdowns/Breakdown_1_Voracity.mp4", poster:"breakdowns/Breakdown_1_Voracity.jpg"}
+   ]},
   {id:"z1bxOp29GUc", title:"Revolver", type:"team", label:"Team project", team:"nixus",
    desc:"A collective project where each editor brings their own style to a spooky edit."},
   {id:"r1OqFtoUvqM", title:"Nixus Christmas Special 2025", type:"team", label:"Team project", team:"nixus",

@@ -17,7 +17,7 @@
    (un nom libre, ex. team:"RLFX", affiche juste le nom sans logo ni réseaux) */
 const teams = {
   nixus: {
-    name: "Nixus", logo: "logos/nixus.png",
+    name: "Team Nixus", logo: "logos/nixus.png",
     tiktok:  "https://www.tiktok.com/@teamnixusrl",
     youtube: "https://www.youtube.com/@TeamNixus",
     x:       "https://x.com/TeamNixus"

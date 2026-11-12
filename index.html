@@ -61,6 +61,7 @@ nav a.navbox:hover,nav a.navbox.active{background:var(--orange);color:#050505}
 .hero h1 .b{color:#5a5a5a;transform:translate(-.025em,0);animation:split 1.4s cubic-bezier(.2,.8,.2,1) both}
 .hero h1 .o{color:#b8b8b8;transform:translate(.025em,0);animation:split 1.4s cubic-bezier(.2,.8,.2,1) both}
 .hero h1 .main{position:relative;color:var(--text)}
+.hero h1{transform:perspective(1100px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transform-origin:50% 50%;will-change:transform}
 @keyframes split{from{transform:translate(0,0);opacity:0}30%{opacity:1}}
 .hero p.role{margin-top:36px;font-size:clamp(1.1rem,2.2vw,1.5rem);font-weight:500;max-width:34ch}
 .hero p.sub{margin-top:12px;color:var(--muted);max-width:52ch}
@@ -373,6 +374,29 @@ function buildMosaic() {
 }
 buildMosaic();
 mq.addEventListener('change', buildMosaic);
+
+// Titre 3D : il s'incline légèrement vers la souris (haut/bas/gauche/droite)
+(function(){
+  const h1 = document.querySelector('.hero h1');
+  if (!h1 || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const MAX_Y = 7, MAX_X = 5;           // inclinaison maximale en degrés (discrète)
+  let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0;
+  const clamp = v => Math.max(-1, Math.min(1, v));
+  function frame() {
+    cx += (tx - cx) * .08; cy += (ty - cy) * .08;      // lissage
+    h1.style.setProperty('--ry', (cx * MAX_Y).toFixed(2) + 'deg');   // souris à droite -> penche à droite
+    h1.style.setProperty('--rx', (-cy * MAX_X).toFixed(2) + 'deg');  // souris en haut  -> penche vers le haut
+    raf = (Math.abs(tx - cx) > .002 || Math.abs(ty - cy) > .002) ? requestAnimationFrame(frame) : 0;
+  }
+  const go = () => { if (!raf) raf = requestAnimationFrame(frame); };
+  addEventListener('pointermove', e => {
+    if (e.pointerType !== 'mouse') return;
+    tx = clamp((e.clientX / innerWidth - .5) * 2);
+    ty = clamp((e.clientY / innerHeight - .5) * 2);
+    go();
+  }, {passive:true});
+  document.documentElement.addEventListener('mouseleave', () => { tx = 0; ty = 0; go(); });
+})();
 </script>
 </body>
 </html>

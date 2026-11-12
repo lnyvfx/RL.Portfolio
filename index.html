@@ -379,7 +379,7 @@ mq.addEventListener('change', buildMosaic);
 (function(){
   const h1 = document.querySelector('.hero h1');
   if (!h1 || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const MAX_Y = 7, MAX_X = 5;           // inclinaison maximale en degrés (discrète)
+  const MAX_Y = 9, MAX_X = 7;           // inclinaison maximale en degrés (discrète)
   let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0;
   const clamp = v => Math.max(-1, Math.min(1, v));
   function frame() {

@@ -57,11 +57,11 @@ nav a.navbox:hover,nav a.navbox.active{background:var(--orange);color:#050505}
 .partners .sep{width:1px;height:26px;background:#333}
 .hero h1{font-family:var(--display);font-weight:900;font-size:clamp(4rem,17vw,13rem);line-height:.9;letter-spacing:-.03em;position:relative;display:inline-block}
 .hero h1 span{display:block}
-.hero h1 .ghost{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen}
+.hero h1 .ghost{position:absolute;inset:0;pointer-events:none}
 .hero h1 .b{color:#5a5a5a;transform:translate(-.025em,0);animation:split 1.4s cubic-bezier(.2,.8,.2,1) both}
 .hero h1 .o{color:#b8b8b8;transform:translate(.025em,0);animation:split 1.4s cubic-bezier(.2,.8,.2,1) both}
 .hero h1 .main{position:relative;color:var(--text)}
-.hero h1{transform:perspective(1100px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transform-origin:50% 50%;will-change:transform;transform-style:preserve-3d}
+.hero h1{transform:perspective(2600px) rotateX(var(--rx,10deg)) rotateY(var(--ry,-18deg));transform-origin:50% 50%;will-change:transform;transform-style:preserve-3d}
 .hero h1 .main{translate:0 0 1px}
 .hero h1 .ext{position:absolute;inset:0;pointer-events:none;user-select:none;-webkit-user-select:none;translate:0 0 calc(var(--i) * -.019em)}
 @keyframes split{from{transform:translate(0,0);opacity:0}30%{opacity:1}}
@@ -382,13 +382,13 @@ mq.addEventListener('change', buildMosaic);
   const h1 = document.querySelector('.hero h1');
   const main = h1 && h1.querySelector('.main');
   if (!main) return;
-  const N = 20;                                   // nombre de couches (profondeur ≈ .14em)
+  const N = 32;                                   // nombre de couches (profondeur ≈ .6em)
   for (let i = N; i >= 1; i--) {                  // les plus lointaines d'abord
     const c = main.cloneNode(true);
     c.className = 'ext';
     c.setAttribute('aria-hidden', 'true');
     c.style.setProperty('--i', i);
-    const g = Math.round(135 - 113 * (i / N));    // gris clair devant -> sombre derrière
+    const g = Math.round(175 - 105 * (i / N));    // gris clair devant -> sombre derrière
     c.style.color = `rgb(${g},${g},${g})`;
     h1.insertBefore(c, h1.firstChild);
   }
@@ -398,13 +398,14 @@ mq.addEventListener('change', buildMosaic);
 (function(){
   const h1 = document.querySelector('.hero h1');
   if (!h1 || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const MAX_Y = 7, MAX_X = 5;           // inclinaison maximale en degrés (discrète)
+  const BASE_Y = -18, BASE_X = 10;        // angle de repos (rend l'épaisseur visible)
+  const MAX_Y = 7, MAX_X = 5;           // variation max due à la souris, en degrés (discrète)
   let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0;
   const clamp = v => Math.max(-1, Math.min(1, v));
   function frame() {
     cx += (tx - cx) * .08; cy += (ty - cy) * .08;      // lissage
-    h1.style.setProperty('--ry', (cx * MAX_Y).toFixed(2) + 'deg');   // souris à droite -> penche à droite
-    h1.style.setProperty('--rx', (-cy * MAX_X).toFixed(2) + 'deg');  // souris en haut  -> penche vers le haut
+    h1.style.setProperty('--ry', (BASE_Y + cx * MAX_Y).toFixed(2) + 'deg');   // souris à droite -> penche à droite
+    h1.style.setProperty('--rx', (BASE_X - cy * MAX_X).toFixed(2) + 'deg');  // souris en haut  -> penche vers le haut
     raf = (Math.abs(tx - cx) > .002 || Math.abs(ty - cy) > .002) ? requestAnimationFrame(frame) : 0;
   }
   const go = () => { if (!raf) raf = requestAnimationFrame(frame); };

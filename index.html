@@ -398,7 +398,7 @@ mq.addEventListener('change', buildMosaic);
 (function(){
   const h1 = document.querySelector('.hero h1');
   if (!h1 || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const BASE_Y = -18, BASE_X = 10;        // angle de repos (rend l'épaisseur visible)
+  const BASE_Y = -8, BASE_X = 2;        // angle de repos (rend l'épaisseur visible)
   const MAX_Y = 7, MAX_X = 5;           // variation max due à la souris, en degrés (discrète)
   let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0;
   const clamp = v => Math.max(-1, Math.min(1, v));

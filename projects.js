@@ -39,7 +39,8 @@ const projects = [
      {kind:"3d", title:"Backroom effect", desc:"how I managed to recreate the Backrooms aesthetic in Blender and mix it with assets from Rocket League", src:"breakdowns/Breakdown_1_EchoChamber.mp4", poster:"breakdowns/Breakdown_1_EchoChamber.jpg"}
    ]},
   {id:"jTG4uRBdb40", title:"Kickstart", type:"solo", label:"solo edit", team:"soul",
-   desc:"A solo edit, client work for Team Soul."},
+   desc:"A solo edit, client work for Team Soul.",
+  download:"https://lynvex.gumroad.com/l/nsjokv?wanted=true"},
   {id:"PTPKU8zK7hM", title:"Voracity", type:"duo", label:"Duo edit", team:"nixus",
    desc:"A duo edit with @Bazill blending visual effects and rhythm to showcase the gameplay.", breakdown:[
      {kind:"3d", title:"Cars hit effect", desc:"how I managed to create a cool shock effect between rocket league cars in Blender", src:"breakdowns/Breakdown_1_Voracity.mp4", poster:"breakdowns/Breakdown_1_Voracity.jpg"}

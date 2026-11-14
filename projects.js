@@ -34,7 +34,7 @@ const teams = {
 const projects = [
   {id:"RL5rxCky1cA", title:"Echo Chamber", type:"team", label:"Team project", team:"nixus",
    desc:"The Team Nixus halloween special 2026.",
-   download:"https://huggingface.co/datasets/lnyvfx/projects_files/resolve/main/Nixus%20Halloween%202026%20folder.rar?download=true",
+   download:"https://https://lynvex.gumroad.com/l/echo-chamber-mypart?wanted=true",
    breakdown:[
      {kind:"3d", title:"Backroom effect", desc:"how I managed to recreate the Backrooms aesthetic in Blender and mix it with assets from Rocket League", src:"breakdowns/Breakdown_1_EchoChamber.mp4", poster:"breakdowns/Breakdown_1_EchoChamber.jpg"}
    ]},

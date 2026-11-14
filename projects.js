@@ -61,7 +61,10 @@ const projects = [
 const bgOnly = [
   {id:"e_FYaQPYzNQ"},
   {id:"g-zf_K4XYnc"},
-  {id:"ixwpaMofYTU"}
+  {id:"ixwpaMofYTU"},
+  {id:"YKIO_dswgPI"},
+  {id:"PkEF7p19O64"},
+  {id:"n4Fp4iKFTws"},
 ];
 
 const labelOf = k => k === '3d' ? '3D' : 'VFX';

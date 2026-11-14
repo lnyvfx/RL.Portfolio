@@ -27,7 +27,7 @@ const teams = {
     tiktok:  "https://www.tiktok.com/@team_soul_rl1",
     youtube: "https://www.youtube.com/@TeamSoulrl",
     x:       "https://x.com/teamsoulrl"
-  }
+  },
 };
 
 const projects = [

@@ -67,6 +67,10 @@ main{padding:36px 0 90px}
 .about{grid-column:1/13}
 .about p{font-size:clamp(1rem,1.3vw,1.15rem);color:#d2d2d2;max-width:75ch;white-space:pre-line}
 .bd{grid-column:1/13}
+.dl{grid-column:1/13}
+.btn.dl-btn{display:inline-flex;align-items:center;gap:10px;margin-top:0}
+.btn.dl-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
 .soon{display:grid;place-items:center;min-height:180px;border:1px dashed #333;border-radius:12px;text-align:center;color:var(--muted);font-family:var(--display);font-weight:500;font-size:clamp(1rem,2vw,1.3rem);letter-spacing:.02em}
 
 /* Breakdown (quand il y en a) */
@@ -98,7 +102,8 @@ footer{padding:36px 0;border-top:1px solid var(--line);color:var(--muted);font-s
 footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
 
 @media(max-width:860px){
-  .thumb,.side,.about,.bd{grid-column:1/-1}
+  .thumb,.side,.about,.bd,.dl{grid-column:1/-1}
+  .btn.dl-btn{width:100%;justify-content:center}
   .name{justify-content:flex-start}
   .name h1{margin-top:2px}
   .btn{margin-top:6px}
@@ -134,7 +139,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
   </div>
 </footer>
 
-<script src="projects.js"></script>
+<script src="projects.js?v=4"></script>
 <script>
 const page = document.getElementById('page');
 const id = new URLSearchParams(location.search).get('id');
@@ -149,7 +154,7 @@ const ICONS = {
 const NET = [['youtube','YouTube'],['tiktok','TikTok'],['x','X / Twitter']];
 function teamBox(key) {
   if (!key) return '';
-  const t = (typeof teams !== 'undefined' && teams[key]) || null;
+  const t = (typeof teams !== 'undefined' && (teams[key] || teams[String(key).toLowerCase()])) || null;
   if (!t) return `<div class="box team-box"><span class="label">Team</span><div class="tname">${esc(key)}</div></div>`;
   const links = NET.filter(([k]) => t[k]).map(([k, n]) =>
     `<a href="${esc(t[k])}" target="_blank" rel="noopener" aria-label="${esc(t.name)} on ${n}" title="${n}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[k]}"/></svg></a>`).join('');
@@ -193,6 +198,7 @@ if (idx < 0) {
         <span class="label">Breakdown</span>
         <div id="bdBody"></div>
       </div>
+      ${p.download ? `<div class="dl"><a class="btn dl-btn" href="${esc(p.download)}" download rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16"/></svg>Download full project file</a></div>` : ''}
     </div>
     <nav class="pager" aria-label="Other projects">
       <a href="${href(prev)}"><small>← Previous</small><b>${esc(prev.title)}</b></a>

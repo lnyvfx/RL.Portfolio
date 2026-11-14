@@ -67,9 +67,11 @@ main{padding:36px 0 90px}
 .about{grid-column:1/13}
 .about p{font-size:clamp(1rem,1.3vw,1.15rem);color:#d2d2d2;max-width:75ch;white-space:pre-line}
 .bd{grid-column:1/13}
-.dl{grid-column:1/13}
-.btn.dl-btn{display:inline-flex;align-items:center;gap:10px;margin-top:0}
-.btn.dl-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.dl{grid-column:1/13;display:flex;justify-content:flex-end;margin:14px 0 16px}
+.btn.dl-btn{display:inline-flex;align-items:center;gap:14px;margin-top:0;padding:20px 40px;font-size:1.1rem;transition:background .2s}
+.btn.dl-btn:hover{transform:none;background:#d4d4d4}
+.btn.dl-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.btn.dl-btn:hover svg{transform:translateY(3px)}
 
 .soon{display:grid;place-items:center;min-height:180px;border:1px dashed #333;border-radius:12px;text-align:center;color:var(--muted);font-family:var(--display);font-weight:500;font-size:clamp(1rem,2vw,1.3rem);letter-spacing:.02em}
 
@@ -103,7 +105,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
 
 @media(max-width:860px){
   .thumb,.side,.about,.bd,.dl{grid-column:1/-1}
-  .btn.dl-btn{width:100%;justify-content:center}
+  .btn.dl-btn{width:100%;justify-content:center;padding:18px 24px}
   .name{justify-content:flex-start}
   .name h1{margin-top:2px}
   .btn{margin-top:6px}

@@ -40,7 +40,7 @@ const projects = [
    ]},
   {id:"jTG4uRBdb40", title:"Kickstart", type:"solo", label:"solo edit", team:"soul",
    desc:"A solo edit, client work for Team Soul.",
-  download:"https://lynvex.gumroad.com/l/nsjokv?wanted=true"},
+  download:"https://lynvex.gumroad.com/l/kickstart?wanted=true"},
   {id:"PTPKU8zK7hM", title:"Voracity", type:"duo", label:"Duo edit", team:"nixus",
    desc:"A duo edit with @Bazill blending visual effects and rhythm to showcase the gameplay.", breakdown:[
      {kind:"3d", title:"Cars hit effect", desc:"how I managed to create a cool shock effect between rocket league cars in Blender", src:"breakdowns/Breakdown_1_Voracity.mp4", poster:"breakdowns/Breakdown_1_Voracity.jpg"}

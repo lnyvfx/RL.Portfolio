@@ -5,6 +5,7 @@
      title, type ("solo" | "duo" | "team"), label, desc  (obligatoires)
      long      description détaillée affichée sur la page du projet
                (sinon "desc" est utilisée ; \n = retour à la ligne)
+     download  lien DIRECT vers le fichier complet du projet (affiche le bouton "Download full project file")
      team      clé d'une team (voir "teams" plus bas) ou nom libre ; affiché seulement si renseigné
      year, role, tools:["Blender", ...]   (optionnels, petites pastilles)
      breakdown:[
@@ -32,7 +33,9 @@ const teams = {
 
 const projects = [
   {id:"RL5rxCky1cA", title:"Echo Chamber", type:"team", label:"Team project", team:"nixus",
-   desc:"The Team Nixus halloween special 2026.", breakdown:[
+   desc:"The Team Nixus halloween special 2026.",
+   download:"https://huggingface.co/datasets/lnyvfx/projects_files/resolve/main/Nixus%20Halloween%202026%20folder.rar?download=true",
+   breakdown:[
      {kind:"3d", title:"Backroom effect", desc:"how I managed to recreate the Backrooms aesthetic in Blender and mix it with assets from Rocket League", src:"breakdowns/Breakdown_1_EchoChamber.mp4", poster:"breakdowns/Breakdown_1_EchoChamber.jpg"}
    ]},
   {id:"jTG4uRBdb40", title:"Kickstart", type:"solo", label:"solo edit", team:"soul",

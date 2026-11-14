@@ -64,7 +64,7 @@ const bgOnly = [
   {id:"ixwpaMofYTU"},
   {id:"YKIO_dswgPI"},
   {id:"PkEF7p19O64"},
-  {id:"n4Fp4iKFTws"},
+  {id:"n4Fp4iKFTws"}
 ];
 
 const labelOf = k => k === '3d' ? '3D' : 'VFX';

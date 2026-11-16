@@ -13,7 +13,8 @@
      breakdown:[
        {kind:"vfx", title:"Smoke & particles", desc:"...", yt:"ID_YOUTUBE"},
        {kind:"3d",  title:"Wireframe", desc:"...", src:"breakdowns/x.mp4", poster:"breakdowns/x.jpg"},
-       {kind:"3d",  title:"Render passes", img:"breakdowns/x.jpg"}
+       {kind:"3d",  title:"Render passes", img:"breakdowns/x.jpg"},
+       {kind:"3d",  title:"Avant / après", desc:"...", before:"breakdowns/x_avant.mp4", src:"breakdowns/x_apres.mp4"}   // curseur à glisser
      ]
    ============================================================ */
 /* Teams : le champ  team:"nixus"  d'un projet pointe vers une entrée ci-dessous.
@@ -38,7 +39,9 @@ const projects = [
    desc:"The Team Nixus halloween special 2026.",
    buy:"https://lynvex.gumroad.com/l/echo-chamber-mypart", price:"8 €",
    breakdown:[
-     {kind:"3d", title:"Backroom effect", desc:"how I managed to recreate the Backrooms aesthetic in Blender and mix it with assets from Rocket League", src:"breakdowns/Breakdown_1_EchoChamber.mp4", poster:"breakdowns/Breakdown_1_EchoChamber.jpg"}
+     {kind:"3d", title:"Backroom effect", desc:"how I managed to recreate the Backrooms aesthetic in Blender and mix it with assets from Rocket League",
+      before:"breakdowns/backroom_avant.mp4", beforePoster:"breakdowns/backroom_avant.jpg",
+      src:"breakdowns/backroom_apres.mp4", poster:"breakdowns/backroom_apres.jpg"}
    ]},
   {id:"jTG4uRBdb40", title:"Kickstart", type:"solo", label:"solo edit", team:"soul",
    desc:"A solo edit, client work for Team Soul.",

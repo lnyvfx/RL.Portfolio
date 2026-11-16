@@ -122,7 +122,7 @@ html[data-sb="c"] .sb-top{padding:0;justify-content:center}
 .team-projects a{display:flex;align-items:center;gap:12px;padding:6px;border-radius:8px;border:1px solid transparent;font-size:.92rem;color:#cfcfcf;transition:background .15s,border-color .15s}
 .team-projects a:hover{background:#161616;border-color:#262626;color:#fff}
 .team-projects img{width:64px;aspect-ratio:16/9;object-fit:cover;border-radius:5px;background:#000;flex:none}
-.filters{display:flex;gap:8px;margin-bottom:22px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
 .filters button{font:500 12px var(--mono);color:var(--muted);background:transparent;border:1px solid var(--line2);border-radius:6px;padding:7px 16px;cursor:pointer;transition:color .15s,border-color .15s,background .15s}
 .filters button:hover{color:#fff;border-color:#555}
 .filters button.on{color:#050505;background:#fff;border-color:#fff}
@@ -527,8 +527,7 @@ function bdItem(b, p, withProject, idx) {
   const el = document.createElement('article');
   el.className = 'bd-row' + (b.before ? '' : ' rev'); el.dataset.kind = b.kind;   // avant/après : texte à gauche ; sinon vidéo à gauche
   const text = document.createElement('div'); text.className = 'bd-text';
-  text.innerHTML = `<span class="tag ${b.kind === '3d' ? 'duo' : 'solo'}">${labelOf(b.kind)}</span>` +
-    (b.title ? `<h3>${esc(b.title)}</h3>` : '') + (b.desc ? `<p>${esc(b.desc)}</p>` : '') +
+  text.innerHTML = (b.title ? `<h3>${esc(b.title)}</h3>` : '') + (b.desc ? `<p>${esc(b.desc)}</p>` : '') +
     (withProject ? `<a class="bd-proj" href="#/project/${encodeURIComponent(p.id)}">${esc(p.title)} &rarr;</a>` : '');
   el.appendChild(text); el.appendChild(bdMedia(b));
   return el;
@@ -577,15 +576,26 @@ function fileButton(p, cls, long) {
 }
 
 /* ---------- Vues ---------- */
-function buildBreakdowns() {
-  const mount = $('#bdMount'), list = [];
-  projects.forEach(p => (p.breakdown || []).forEach(b => list.push({b, p})));
-  if (!list.length) { mount.innerHTML = '<div class="soon">Coming soon</div>'; return; }
-  const grid = document.createElement('div'); grid.className = 'bd-list';
-  list.forEach(({b, p}) => grid.appendChild(bdItem(b, p, true)));
-  const tabs = filterTabs(list.map(x => x.b), grid);
-  if (tabs) mount.appendChild(tabs);
-  mount.appendChild(grid);
+function buildBreakdowns() {   // un onglet par projet ; le lien vers le projet n'apparaît que sous le 1er breakdown
+  const mount = $('#bdMount');
+  const ps = projects.filter(p => (p.breakdown || []).length);
+  if (!ps.length) { mount.innerHTML = '<div class="soon">Coming soon</div>'; return; }
+  const tabs = document.createElement('div'); tabs.className = 'filters bd-tabs-p'; tabs.setAttribute('role', 'tablist');
+  const panels = ps.map((p, i) => {
+    const t = document.createElement('button');
+    t.type = 'button'; t.textContent = p.title; t.setAttribute('role', 'tab');
+    const list = document.createElement('div'); list.className = 'bd-list'; list.setAttribute('role', 'tabpanel');
+    p.breakdown.forEach((b, j) => list.appendChild(bdItem(b, p, j === 0)));
+    t.addEventListener('click', () => show(i));
+    tabs.appendChild(t);
+    return {t, list};
+  });
+  function show(i) {
+    panels.forEach((x, k) => { x.list.hidden = k !== i; x.t.classList.toggle('on', k === i); x.t.setAttribute('aria-selected', k === i); });
+  }
+  mount.appendChild(tabs);
+  panels.forEach(x => mount.appendChild(x.list));
+  show(0);
 }
 function buildTeams() {
   const mount = $('#teamsMount');

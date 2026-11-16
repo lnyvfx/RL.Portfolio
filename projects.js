@@ -32,8 +32,8 @@ const teams = {
     youtube: "https://www.youtube.com/@MadeInHeavenRL",
     // vidéos de la team affichées dans "My teams" (ouvrent YouTube) ; title:"" = "Watch on YouTube"
     videos: [
-      {id:"YKIO_dswgPI", title:""},
-      {id:"PkEF7p19O64", title:""}
+      {id:"YKIO_dswgPI", title:"Keep Me Going"},
+      {id:"PkEF7p19O64", title:"Made In Heaven"}
     ]
   },
   soul: {
@@ -53,7 +53,7 @@ const projects = [
       before:"breakdowns/backroom_avant.mp4", beforePoster:"breakdowns/backroom_avant.jpg",
       src:"breakdowns/backroom_apres.mp4", poster:"breakdowns/backroom_apres.jpg"},
      {kind:"3d", title:"Backroom effect, full breakdown", desc:"3D models setup · Rendered in Cycles (Blender) · VHS effect composited in After Effects",
-      src:"breakdowns/Breakdown_1_EchoChamber.mp4", poster:"breakdowns/Breakdown_1_EchoChamber.jpg", start:0}   // start = seconde où commence la vidéo (saute l'intro noire)
+      src:"breakdowns/Breakdown_1_EchoChamber.mp4", poster:"breakdowns/Breakdown_1_EchoChamber.jpg"}
    ]},
   {id:"jTG4uRBdb40", title:"Kickstart", type:"solo", label:"solo edit", team:"soul",
    desc:"A solo edit, client work for Team Soul.",

@@ -7,9 +7,10 @@
                (sinon "desc" est utilisée ; \n = retour à la ligne)
      download  lien DIRECT vers le fichier complet du projet (affiche le bouton "Download full project file")
      buy, price  (optionnel) projet VENDU : buy:"https://xxx.gumroad.com/l/xxxx", price:"10 €"
-                 -> le projet apparaît dans Shop avec un bouton "Buy" (et sur sa page). buy:"" = bouton grisé en attendant le lien
+                 -> le projet apparaît dans Shop avec un bouton "Buy". buy:"" = bouton grisé en attendant le lien
      team      clé d'une team (voir "teams" plus bas) ou nom libre ; affiché seulement si renseigné
      year, role, tools:["Blender", ...]   (optionnels, petites pastilles)
+     start      (vidéo seule) seconde de départ, pour sauter une intro : start:2.5
      breakdown:[
        {kind:"vfx", title:"Smoke & particles", desc:"...", yt:"ID_YOUTUBE"},
        {kind:"3d",  title:"Wireframe", desc:"...", src:"breakdowns/x.mp4", poster:"breakdowns/x.jpg"},
@@ -26,6 +27,15 @@ const teams = {
     youtube: "https://www.youtube.com/@TeamNixus",
     x:       "https://x.com/TeamNixus"
   },
+  mih: {
+    name: "Made In Heaven", logo: "logos/mih.png",
+    youtube: "https://www.youtube.com/@MadeInHeavenRL",
+    // vidéos de la team affichées dans "My teams" (ouvrent YouTube) ; title:"" = "Watch on YouTube"
+    videos: [
+      {id:"YKIO_dswgPI", title:""},
+      {id:"PkEF7p19O64", title:""}
+    ]
+  },
   soul: {
     name: "Team Soul", logo: "logos/soul.png",
     tiktok:  "https://www.tiktok.com/@team_soul_rl1",
@@ -41,7 +51,9 @@ const projects = [
    breakdown:[
      {kind:"3d", title:"Backroom effect", desc:"how I managed to recreate the Backrooms aesthetic in Blender and mix it with assets from Rocket League",
       before:"breakdowns/backroom_avant.mp4", beforePoster:"breakdowns/backroom_avant.jpg",
-      src:"breakdowns/backroom_apres.mp4", poster:"breakdowns/backroom_apres.jpg"}
+      src:"breakdowns/backroom_apres.mp4", poster:"breakdowns/backroom_apres.jpg"},
+     {kind:"3d", title:"Backroom effect, full breakdown", desc:"3D models setup · Rendered in Cycles (Blender) · VHS effect composited in After Effects",
+      src:"breakdowns/Breakdown_1_EchoChamber.mp4", poster:"breakdowns/Breakdown_1_EchoChamber.jpg", start:0}   // start = seconde où commence la vidéo (saute l'intro noire)
    ]},
   {id:"jTG4uRBdb40", title:"Kickstart", type:"solo", label:"solo edit", team:"soul",
    desc:"A solo edit, client work for Team Soul.",

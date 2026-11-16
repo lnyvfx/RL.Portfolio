@@ -498,7 +498,13 @@ function bdMedia(b) {
     box.classList.add('wide'); box.appendChild(ytPlayer(b.yt, b.title || 'Breakdown'));
   } else if (b.src) {   // vidéo seule : se lance toute seule, sans son, en boucle
     const v = document.createElement('video');
-    v.src = b.src; v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'auto'; if (b.poster) v.poster = b.poster;
+    const st = +b.start || 0;   // start:2.5 = la vidéo commence (et boucle) à 2,5 s, pour sauter une intro
+    v.src = b.src + (st ? '#t=' + st : ''); v.muted = true; v.loop = !st;
+    if (st) {
+      v.addEventListener('loadedmetadata', () => { if (v.currentTime < st) v.currentTime = st; });
+      v.addEventListener('ended', () => { v.currentTime = st; const pr = v.play(); if (pr && pr.catch) pr.catch(() => {}); });
+    }
+    v.muted = true; v.playsInline = true; v.preload = 'auto'; if (b.poster) v.poster = b.poster;
     v.addEventListener('loadedmetadata', () => { if (v.videoWidth) box.style.aspectRatio = v.videoWidth + '/' + v.videoHeight; });   // garde le format d'origine
     box.appendChild(v); autoPlayWhenVisible(box, [v]);
   } else if (b.img) {
@@ -589,7 +595,9 @@ function buildTeams() {
     const t = teams[k];
     const links = NET.filter(([n]) => t[n]).map(([n, label]) =>
       `<a href="${esc(t[n])}" target="_blank" rel="noopener" aria-label="${esc(t.name)} on ${label}" title="${label}">${icoFill(n)}</a>`).join('');
-    const ps = projects.filter(p => p.team === k || String(p.team).toLowerCase() === k);
+    const ps = projects.filter(p => p.team === k || String(p.team).toLowerCase() === k)
+      .map(p => ({id: p.id, title: p.title, href: '#/project/' + encodeURIComponent(p.id), ext: false}))
+      .concat((t.videos || []).map(v => ({id: v.id, title: v.title || 'Watch on YouTube', href: 'https://youtu.be/' + v.id, ext: true})));   // vidéos de la team hors de mes projets
     return `<article class="card team-card">
       <div class="team-head">
         ${t.logo ? `<img class="team-logo" src="${esc(t.logo)}" alt="${esc(t.name)} logo">` : ''}
@@ -597,7 +605,7 @@ function buildTeams() {
       </div>
       ${links ? `<div class="team-links">${links}</div>` : ''}
       ${ps.length ? `<h5>Projects</h5><div class="team-projects">${ps.map(p =>
-        `<a href="#/project/${encodeURIComponent(p.id)}"><img alt="" data-thumb="${esc(p.id)}"><span>${esc(p.title)}</span></a>`).join('')}</div>` : ''}
+        `<a href="${esc(p.href)}"${p.ext ? ' target="_blank" rel="noopener"' : ''}><img alt="" data-thumb="${esc(p.id)}"><span>${esc(p.title)}</span></a>`).join('')}</div>` : ''}
     </article>`;
   }).join('');
   mount.querySelectorAll('img[data-thumb]').forEach(i => setThumb(i, i.dataset.thumb));
@@ -649,7 +657,6 @@ function renderProject(p) {
   const meta = [p.year, p.role].concat(p.tools || []).filter(Boolean);
   const prev = projects[(idx - 1 + projects.length) % projects.length];
   const next = projects[(idx + 1) % projects.length];
-  const list = p.breakdown || [];
   const href = q => `#/project/${encodeURIComponent(q.id)}`;
   $('#projectMount').innerHTML = `
     <a class="back" href="#/projects">&larr; All projects</a>
@@ -665,8 +672,6 @@ function renderProject(p) {
         ${teamBox(p.team)}
       </div>
       <div class="box about"><span class="label">About the project</span><p id="pAbout"></p></div>
-      <div class="box bd"><span class="label">Breakdown</span><div id="pBd"></div></div>
-      ${('buy' in p || p.download) ? `<div class="dl">${fileButton(p, 'dl-btn', true)}</div>` : ''}
     </div>
     <nav class="pager" aria-label="Other projects">
       <a href="${href(prev)}"><small>&larr; Previous</small><b>${esc(prev.title)}</b></a>
@@ -674,13 +679,6 @@ function renderProject(p) {
     </nav>`;
   setThumb($('#pThumb'), p.id);
   $('#pAbout').textContent = p.long || p.desc;
-  const body = $('#pBd');
-  if (!list.length) { body.innerHTML = '<div class="soon">Coming soon</div>'; return; }
-  const grid = document.createElement('div'); grid.className = 'bd-list';
-  list.forEach(b => grid.appendChild(bdItem(b, p, false)));
-  const tabs = filterTabs(list, grid);
-  if (tabs) body.appendChild(tabs);
-  body.appendChild(grid);
 }
 
 /* ---------- 3D : configurateur (Three.js chargé à la première visite de la page) + maps ---------- */

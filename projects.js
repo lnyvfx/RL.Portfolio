@@ -6,6 +6,8 @@
      long      description détaillée affichée sur la page du projet
                (sinon "desc" est utilisée ; \n = retour à la ligne)
      download  lien DIRECT vers le fichier complet du projet (affiche le bouton "Download full project file")
+     buy, price  (optionnel) projet VENDU : buy:"https://xxx.gumroad.com/l/xxxx", price:"10 €"
+                 -> le projet apparaît dans Shop avec un bouton "Buy" (et sur sa page). buy:"" = bouton grisé en attendant le lien
      team      clé d'une team (voir "teams" plus bas) ou nom libre ; affiché seulement si renseigné
      year, role, tools:["Blender", ...]   (optionnels, petites pastilles)
      breakdown:[
@@ -34,13 +36,13 @@ const teams = {
 const projects = [
   {id:"RL5rxCky1cA", title:"Echo Chamber", type:"team", label:"Team project", team:"nixus",
    desc:"The Team Nixus halloween special 2026.",
-   download:"https://lynvex.gumroad.com/l/echo-chamber-mypart?wanted=true",
+   buy:"", price:"",   // <- colle ici le lien Gumroad (et le prix, ex. "10 €")
    breakdown:[
      {kind:"3d", title:"Backroom effect", desc:"how I managed to recreate the Backrooms aesthetic in Blender and mix it with assets from Rocket League", src:"breakdowns/Breakdown_1_EchoChamber.mp4", poster:"breakdowns/Breakdown_1_EchoChamber.jpg"}
    ]},
   {id:"jTG4uRBdb40", title:"Kickstart", type:"solo", label:"solo edit", team:"soul",
    desc:"A solo edit, client work for Team Soul.",
-  download:"https://lynvex.gumroad.com/l/kickstart"},
+   buy:"", price:""},   // <- colle ici le lien Gumroad (et le prix, ex. "10 €")
   {id:"PTPKU8zK7hM", title:"Voracity", type:"duo", label:"Duo edit", team:"nixus",
    desc:"A duo edit with @Bazill blending visual effects and rhythm to showcase the gameplay.", breakdown:[
      {kind:"3d", title:"Cars hit effect", desc:"how I managed to create a cool shock effect between rocket league cars in Blender", src:"breakdowns/Breakdown_1_Voracity.mp4", poster:"breakdowns/Breakdown_1_Voracity.jpg"}
@@ -61,7 +63,7 @@ const projects = [
    ]}
 ];
 
-// Extra thumbnails used ONLY in the hero background (not listed in Projects)
+// (plus utilisé : l'ancien fond animé de l'accueil a été retiré)
 const bgOnly = [
   {id:"e_FYaQPYzNQ"},
   {id:"g-zf_K4XYnc"},

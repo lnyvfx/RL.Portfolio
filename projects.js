@@ -36,13 +36,13 @@ const teams = {
 const projects = [
   {id:"RL5rxCky1cA", title:"Echo Chamber", type:"team", label:"Team project", team:"nixus",
    desc:"The Team Nixus halloween special 2026.",
-   buy:"", price:"",   // <- colle ici le lien Gumroad (et le prix, ex. "10 €")
+   buy:"https://lynvex.gumroad.com/l/echo-chamber-mypart", price:"8 €",
    breakdown:[
      {kind:"3d", title:"Backroom effect", desc:"how I managed to recreate the Backrooms aesthetic in Blender and mix it with assets from Rocket League", src:"breakdowns/Breakdown_1_EchoChamber.mp4", poster:"breakdowns/Breakdown_1_EchoChamber.jpg"}
    ]},
   {id:"jTG4uRBdb40", title:"Kickstart", type:"solo", label:"solo edit", team:"soul",
    desc:"A solo edit, client work for Team Soul.",
-   buy:"", price:""},   // <- colle ici le lien Gumroad (et le prix, ex. "10 €")
+   buy:"https://lynvex.gumroad.com/l/kickstart", price:"15 €"},
   {id:"PTPKU8zK7hM", title:"Voracity", type:"duo", label:"Duo edit", team:"nixus",
    desc:"A duo edit with @Bazill blending visual effects and rhythm to showcase the gameplay.", breakdown:[
      {kind:"3d", title:"Cars hit effect", desc:"how I managed to create a cool shock effect between rocket league cars in Blender", src:"breakdowns/Breakdown_1_Voracity.mp4", poster:"breakdowns/Breakdown_1_Voracity.jpg"}

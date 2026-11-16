@@ -175,12 +175,12 @@ html[data-sb="c"] .sb-top{padding:0;justify-content:center}
 .bd-text .bd-proj{display:inline-block;margin-top:22px;font:500 12px var(--mono);color:#d6d6d6;text-decoration:underline;text-underline-offset:4px}
 .bd-media{position:relative;border-radius:10px;overflow:hidden;background:#000;aspect-ratio:4/3;box-shadow:0 0 0 1px var(--line)}
 .bd-media.wide{aspect-ratio:16/9}
-.bd-media video,.bd-media canvas,.bd-media>img,.bd-media .yt{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;border:0;padding:0}
+.bd-media video,.bd-media>img,.bd-media .yt{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;border:0;padding:0}
 .bd-media .yt{cursor:pointer}
 .bd-media .yt img,.bd-media .yt iframe{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border:0}
 /* avant / après */
 .cmp{cursor:ew-resize;touch-action:pan-y;user-select:none;-webkit-user-select:none;--x:50%}
-.cmp video{opacity:0;pointer-events:none}
+.cmp .after{clip-path:inset(0 0 0 var(--x))}
 .cmp .line{position:absolute;top:0;bottom:0;left:var(--x);width:2px;margin-left:-1px;background:rgba(255,255,255,.9);pointer-events:none}
 .cmp .knob{position:absolute;top:50%;left:var(--x);width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:50%;background:#e8e8e8;color:#111;display:grid;place-items:center;font:700 10px var(--mono);letter-spacing:-.05em;pointer-events:none}
 .cmp .lbl{position:absolute;top:12px;padding:4px 9px;border-radius:5px;background:rgba(5,5,5,.65);color:#e6e6e6;font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;pointer-events:none}
@@ -446,25 +446,17 @@ function ytPlayer(id, title) {
 }
 function bdMedia(b) {
   const box = document.createElement('div'); box.className = 'bd-media';
-  if (b.compare) {   // avant / après : UNE seule vidéo (avant à gauche, après à droite), dessinée sur un canvas -> synchro parfaite
+  if (b.before && b.src) {   // avant / après : les 2 vidéos d'origine, lues ensemble sur la même horloge
     box.classList.add('cmp'); box.tabIndex = 0;
     box.setAttribute('role', 'slider'); box.setAttribute('aria-label', 'Before and after comparison, drag or use the arrow keys');
     box.setAttribute('aria-valuemin', 0); box.setAttribute('aria-valuemax', 100); box.setAttribute('aria-valuenow', 50);
-    box.innerHTML = `<video src="${esc(b.compare)}" ${b.poster ? `poster="${esc(b.poster)}"` : ''} muted loop playsinline preload="auto"></video><canvas></canvas>` +
+    const mk = (src, poster, cls) => `<video class="${cls}" src="${esc(src)}" ${poster ? `poster="${esc(poster)}"` : ''} muted playsinline preload="auto"></video>`;
+    box.innerHTML = mk(b.before, b.beforePoster, 'before') + mk(b.src, b.poster, 'after') +
       '<span class="lbl l">Before</span><span class="lbl r">After</span><span class="line"></span><span class="knob">&lt;&gt;</span>';
-    const v = box.querySelector('video'), cv = box.querySelector('canvas'), ctx = cv.getContext('2d');
-    v.muted = true;
+    const [vb, va] = box.querySelectorAll('video');
+    vb.muted = va.muted = true;
     let x = 50;
-    const draw = () => {
-      const W = v.videoWidth / 2, H = v.videoHeight; if (!W || !v.readyState) return;
-      if (cv.width !== W) { cv.width = W; cv.height = H; }
-      const px = Math.round(x / 100 * W);
-      if (px > 0) ctx.drawImage(v, 0, 0, px, H, 0, 0, px, H);              // moitié gauche = avant
-      if (px < W) ctx.drawImage(v, W + px, 0, W - px, H, px, 0, W - px, H); // moitié droite = après
-    };
-    const loop = () => { draw(); if (!v.paused) (v.requestVideoFrameCallback ? v.requestVideoFrameCallback(loop) : requestAnimationFrame(loop)); };
-    v.addEventListener('play', loop); v.addEventListener('loadeddata', draw); v.addEventListener('seeked', draw);
-    const set = n => { x = Math.max(0, Math.min(100, n)); box.style.setProperty('--x', x + '%'); box.setAttribute('aria-valuenow', Math.round(x)); draw(); };
+    const set = n => { x = Math.max(0, Math.min(100, n)); box.style.setProperty('--x', x + '%'); box.setAttribute('aria-valuenow', Math.round(x)); };
     const fromEvent = e => { const r = box.getBoundingClientRect(); set((e.clientX - r.left) / r.width * 100); };
     let drag = false;
     box.addEventListener('pointerdown', e => { drag = true; box.setPointerCapture(e.pointerId); fromEvent(e); });
@@ -472,7 +464,36 @@ function bdMedia(b) {
     const up = () => { drag = false; };
     box.addEventListener('pointerup', up); box.addEventListener('pointercancel', up);
     box.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') set(x - 4); else if (e.key === 'ArrowRight') set(x + 4); });
-    autoPlayWhenVisible(box, [v]);
+
+    // Synchro : les deux vidéos partent de 0 en même temps ; si l'une prend de l'avance, on ajuste
+    // légèrement sa vitesse (pas de saut) ; si l'une attend le réseau, l'autre l'attend aussi.
+    // Boucle : on relance les deux depuis 0 quand les DEUX sont finies (la plus courte reste sur sa dernière image).
+    let want = false, raf = 0, restarting = false;
+    const vids = [va, vb];
+    const ready = () => vids.every(v => v.readyState >= 3 || v.ended);
+    const playAll = () => vids.forEach(v => { if (!v.ended) { const pr = v.play(); if (pr && pr.catch) pr.catch(() => {}); } });
+    const pauseAll = () => vids.forEach(v => v.pause());
+    const restart = () => {
+      restarting = true; pauseAll();
+      vids.forEach(v => { v.playbackRate = 1; v.currentTime = 0; });
+      let n = 0; vids.forEach(v => v.addEventListener('seeked', () => { if (++n === 2) { restarting = false; if (want) playAll(); } }, {once: true}));
+    };
+    const tick = () => {
+      raf = requestAnimationFrame(tick);
+      if (restarting) return;
+      if (va.ended && vb.ended) { restart(); return; }
+      if (!ready()) { pauseAll(); return; }                       // une vidéo charge : l'autre l'attend
+      if (vids.some(v => v.paused && !v.ended)) playAll();
+      if (va.ended || vb.ended) { vb.playbackRate = va.playbackRate = 1; return; }
+      const d = vb.currentTime - va.currentTime;                 // > 0 : "avant" est en avance
+      if (Math.abs(d) > .25) { vb.currentTime = va.currentTime; return; }
+      vb.playbackRate = Math.abs(d) < .015 ? 1 : Math.max(.9, Math.min(1.1, 1 - d * 2));
+    };
+    box._ctl = {
+      play() { if (want) return; want = true; if (!raf) raf = requestAnimationFrame(tick); },
+      pause() { want = false; cancelAnimationFrame(raf); raf = 0; pauseAll(); }
+    };
+    bdObserver.observe(box);
   } else if (b.yt) {
     box.classList.add('wide'); box.appendChild(ytPlayer(b.yt, b.title || 'Breakdown'));
   } else if (b.src) {   // vidéo seule : se lance toute seule, sans son, en boucle
@@ -488,6 +509,7 @@ function bdMedia(b) {
 // Lit les vidéos seulement quand elles sont à l'écran (économise le processeur)
 const bdObserver = new IntersectionObserver(entries => {
   entries.forEach(en => {
+    if (en.target._ctl) { en.isIntersecting ? en.target._ctl.play() : en.target._ctl.pause(); return; }
     const vids = en.target._vids || [];
     if (en.isIntersecting) { vids.forEach(v => { v.muted = true; const pr = v.play(); if (pr && pr.catch) pr.catch(() => {}); }); }
     else vids.forEach(v => v.pause());
@@ -497,7 +519,7 @@ function autoPlayWhenVisible(box, vids) { box._vids = vids; bdObserver.observe(b
 
 function bdItem(b, p, withProject, idx) {
   const el = document.createElement('article');
-  el.className = 'bd-row' + (b.compare ? '' : ' rev'); el.dataset.kind = b.kind;   // avant/après : texte à gauche ; sinon vidéo à gauche
+  el.className = 'bd-row' + (b.before ? '' : ' rev'); el.dataset.kind = b.kind;   // avant/après : texte à gauche ; sinon vidéo à gauche
   const text = document.createElement('div'); text.className = 'bd-text';
   text.innerHTML = `<span class="tag ${b.kind === '3d' ? 'duo' : 'solo'}">${labelOf(b.kind)}</span>` +
     (b.title ? `<h3>${esc(b.title)}</h3>` : '') + (b.desc ? `<p>${esc(b.desc)}</p>` : '') +

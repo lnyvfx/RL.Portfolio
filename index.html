@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script>try{if(localStorage.getItem('sb')==='c')document.documentElement.dataset.sb='c'}catch(e){}</script>
+<script>try{if(localStorage.getItem('sb')==='c')document.documentElement.dataset.sb='c'}catch(e){}
+try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('mono')}catch(e){}</script>
 <title>LnyVFX</title>
 <link rel="icon" href="/favicon.png" type="image/png" sizes="512x512">
 <link rel="apple-touch-icon" href="/favicon.png">
@@ -43,6 +44,7 @@ button{font:inherit;color:inherit}
 .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sbw);z-index:30;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;transition:width .25s ease}
 .sb-top{height:84px;flex:none;display:flex;align-items:center;padding:0 20px;border-bottom:1px solid #141414}
 .brand{display:flex;align-items:center;gap:14px;min-width:0}
+.brand-logo{filter:grayscale(1)}   /* logo L en noir et blanc (pas le favicon) */
 .brand-logo,.brand-fallback{width:40px;height:40px;border-radius:10px;flex:none;object-fit:cover;background:#151515}
 .brand-fallback{display:grid;place-items:center;font-weight:700}
 .brand-name{font-weight:600;font-size:15px;letter-spacing:.3em;text-transform:uppercase;white-space:nowrap}
@@ -290,6 +292,9 @@ kbd{font:600 12px var(--mono);padding:4px 9px;border-radius:5px;background:#1d1d
 @media(max-width:860px){.tool{grid-template-columns:1fr}.cmd{margin-left:0}}
 
 /* ---------- Intro ---------- */
+/* pendant l'intro le site est en noir et blanc, puis il reprend ses couleurs */
+html.mono .sidebar,html.mono .topbar,html.mono #content,html.mono .site-foot{filter:grayscale(1)}
+html.colorize .sidebar,html.colorize .topbar,html.colorize #content,html.colorize .site-foot{transition:filter .9s ease}
 html.intro-on{overflow:hidden}
 #intro{position:fixed;inset:0;z-index:9999;background:#000}
 #intro video,#intro canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -1031,7 +1036,14 @@ const introWaiters = [];
 function afterIntro(fn) { introDone ? fn() : introWaiters.push(fn); }
 (function intro() {
   const box = document.getElementById('intro');
-  const finish = () => { if (introDone) return; introDone = true; document.documentElement.classList.remove('intro-on'); introWaiters.splice(0).forEach(f => f()); };
+  const html = document.documentElement;
+  const colorize = () => {   // noir et blanc -> couleur, assez rapide, puis on retire le filtre
+    if (!html.classList.contains('mono')) return;
+    html.classList.add('colorize');
+    requestAnimationFrame(() => requestAnimationFrame(() => html.classList.remove('mono')));
+    setTimeout(() => html.classList.remove('colorize'), 1100);
+  };
+  const finish = () => { if (introDone) return; introDone = true; html.classList.remove('intro-on'); colorize(); introWaiters.splice(0).forEach(f => f()); };
   if (!box) { finish(); return; }
   const v = box.querySelector('video'), cv = box.querySelector('canvas'), skip = box.querySelector('.skip');
   const remove = () => { box.remove(); finish(); };

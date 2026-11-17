@@ -289,6 +289,17 @@ kbd{font:600 12px var(--mono);padding:4px 9px;border-radius:5px;background:#1d1d
 .copy:hover{color:#fff;background:#1b1b1b}
 @media(max-width:860px){.tool{grid-template-columns:1fr}.cmd{margin-left:0}}
 
+/* ---------- Intro ---------- */
+html.intro-on{overflow:hidden}
+#intro{position:fixed;inset:0;z-index:9999;background:#000}
+#intro video,#intro canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#intro video{filter:grayscale(1)}
+#intro.gl video{opacity:0}
+#intro.gl.ready{background:transparent}
+#intro .skip{position:absolute;right:22px;bottom:20px;z-index:2;font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#9a9a9a;background:none;border:0;padding:8px 10px;cursor:pointer;transition:color .2s,opacity .3s}
+#intro .skip:hover{color:#fff}
+#intro.out .skip{opacity:0;pointer-events:none}
+#intro.fade{opacity:0;transition:opacity .8s ease}
 /* ---------- Responsive ---------- */
 @media(max-width:860px){
   :root{--sbw:0px}
@@ -321,6 +332,12 @@ kbd{font:600 12px var(--mono);padding:4px 9px;border-radius:5px;background:#1d1d
 </style>
 </head>
 <body>
+<!-- Intro plein écran (intro.mp4 à la racine du site) -->
+<div id="intro" aria-hidden="true">
+  <video src="intro.mp4" muted playsinline preload="auto"></video>
+  <canvas></canvas>
+  <button type="button" class="skip">Skip</button>
+</div>
 <aside class="sidebar" id="sidebar" aria-label="Main navigation">
   <div class="sb-top">
     <a class="brand" href="#/projects" title="LNYVFX"><img class="brand-logo" src="favicon.png" alt="L" onerror="this.outerHTML='<span class=&quot;brand-fallback&quot;>L</span>'"><span class="brand-name">LNYVFX</span></a>
@@ -964,7 +981,7 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitPeek);
 
 /* ---------- Apparition des textes (fondu + montée), ligne par ligne, quand ils arrivent à l'écran ---------- */
 // Seuls les textes bougent : vidéos, images, boutons et cadres restent fixes.
-const RV_SEL = 'h1,h2,h3,h4,h5,p,.eyebrow,.label,.pmeta,.cmeta,.bd-proj,.sec-head,.partners .pl,.pn,.pm,.tname,.team-projects span,.steps li > span:not(.sn):not(.cmd),.price';
+const RV_SEL = '#view-projects .partners a,#view-projects .partners .sep,h1,h2,h3,h4,h5,p,.eyebrow,.label,.pmeta,.cmeta,.bd-proj,.sec-head,.partners .pl,.pn,.pm,.tname,.team-projects span,.steps li > span:not(.sn):not(.cmd),.price';
 const RV_SKIP = '.cbtn,button,.yt,.cmp,.vbox,.seg,.bd-media';
 const RV_STEP = 90;                                           // décalage entre deux lignes (ms)
 const rvOff = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1001,9 +1018,96 @@ function armReveal(scope) {
   if (rvOff || !scope) return;
   scope.querySelectorAll(RV_SEL).forEach(el => {
     if (el.closest(RV_SKIP) || el.parentElement.closest(RV_SEL)) return;   // pas deux fois le même texte
-    el.classList.remove('rv-in'); el.classList.add('rv-wait'); rvIO.observe(el);
+    el.classList.remove('rv-in'); el.classList.add('rv-wait');
+    afterIntro(() => rvIO.observe(el));                      // cachés tout de suite, animés après l'intro
   });
 }
+
+/* ---------- Intro : vidéo plein écran en noir et blanc, puis fondu "par la lumière" ----------
+   À la fin, les zones blanches disparaissent d'abord, puis les gris, puis le noir, et le site apparaît derrière. */
+const INTRO_FADE = 1700;                      // durée du fondu (ms)
+let introDone = false;
+const introWaiters = [];
+function afterIntro(fn) { introDone ? fn() : introWaiters.push(fn); }
+(function intro() {
+  const box = document.getElementById('intro');
+  const finish = () => { if (introDone) return; introDone = true; document.documentElement.classList.remove('intro-on'); introWaiters.splice(0).forEach(f => f()); };
+  if (!box) { finish(); return; }
+  const v = box.querySelector('video'), cv = box.querySelector('canvas'), skip = box.querySelector('.skip');
+  const remove = () => { box.remove(); finish(); };
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { remove(); return; }
+  document.documentElement.classList.add('intro-on');
+  v.muted = true;
+
+  // WebGL : dessine la vidéo en niveaux de gris et efface les pixels plus clairs qu'un seuil qui descend
+  let gl = null, prog, tex, uT, uS, raf = 0, thr = 2, fading = false;
+  try { gl = cv.getContext('webgl', {premultipliedAlpha: true, alpha: true}); } catch (e) {}
+  if (gl) {
+    const sh = (type, src) => { const o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return o; };
+    prog = gl.createProgram();
+    gl.attachShader(prog, sh(gl.VERTEX_SHADER, 'attribute vec2 p;varying vec2 uv;void main(){uv=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}'));
+    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, `precision mediump float;varying vec2 uv;uniform sampler2D tx;uniform float t;uniform vec2 sc;
+      float h(vec2 q){return fract(sin(dot(q,vec2(12.9898,78.233)))*43758.5453);}
+      void main(){vec2 c=(uv-.5)*sc+.5;vec3 col=texture2D(tx,c).rgb;float l=dot(col,vec3(.299,.587,.114));
+        float n=(h(floor(gl_FragCoord.xy/2.))-.5)*.12;              /* grain sur le bord du fondu */
+        float a=1.-smoothstep(t-.05,t+.05,l+n);                     /* plus clair que le seuil = effacé */
+        gl_FragColor=vec4(vec3(l)*a,a);}`));
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) gl = null;
+  }
+  if (gl) {
+    box.classList.add('gl');
+    gl.useProgram(prog);
+    const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+    [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach(k => gl.texParameteri(gl.TEXTURE_2D, k, gl.CLAMP_TO_EDGE));
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    uT = gl.getUniformLocation(prog, 't'); uS = gl.getUniformLocation(prog, 'sc');
+  }
+  const size = () => {
+    if (!gl) return;
+    const d = Math.min(devicePixelRatio || 1, 1.5);
+    cv.width = Math.round(innerWidth * d); cv.height = Math.round(innerHeight * d);
+    gl.viewport(0, 0, cv.width, cv.height);
+  };
+  size(); addEventListener('resize', size);
+  const draw = () => {
+    if (!gl || v.readyState < 2) return;
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, v);
+    const va = v.videoWidth / v.videoHeight, sa = cv.width / cv.height;   // remplissage "cover"
+    gl.uniform2f(uS, sa > va ? 1 : sa / va, sa > va ? va / sa : 1);
+    gl.uniform1f(uT, thr);
+    gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    box.classList.add('ready');
+  };
+  const loop = () => { draw(); raf = requestAnimationFrame(loop); };
+
+  function dissolve() {
+    if (fading) return; fading = true;
+    box.classList.add('out');
+    setTimeout(finish, INTRO_FADE * .45);   // les textes du site commencent à apparaître pendant le fondu
+    if (!gl || v.readyState < 2) { box.classList.add('fade'); setTimeout(remove, 850); return; }
+    const t0 = performance.now();
+    const step = now => {
+      const k = Math.min(1, (now - t0) / INTRO_FADE);
+      const e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;   // accélère puis ralentit
+      thr = 1.08 - e * 1.2;                  // seuil : blanc (1) -> sous le noir (-0.12)
+      if (k < 1) requestAnimationFrame(step); else { cancelAnimationFrame(raf); remove(); }
+    };
+    requestAnimationFrame(step);
+  }
+  v.addEventListener('ended', dissolve);
+  skip.addEventListener('click', () => { v.pause(); dissolve(); });
+  addEventListener('keydown', e => { if (!fading && (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ')) { v.pause(); dissolve(); } });
+  v.addEventListener('error', () => { box.classList.add('fade'); setTimeout(remove, 850); fading = true; finish(); });
+  const pr = v.play();
+  if (pr && pr.catch) pr.catch(() => { if (!fading) { fading = true; box.classList.add('fade'); setTimeout(remove, 850); finish(); } });   // lecture auto bloquée
+  setTimeout(() => { if (!fading && v.currentTime === 0) dissolve(); }, 6000);   // vidéo qui ne démarre pas : on n'attend pas
+  if (gl) loop();
+})();
 
 /* ---------- Routeur (#/projects, #/breakdowns, #/project/ID ...) ---------- */
 const views = {};

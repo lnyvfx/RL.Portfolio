@@ -10,6 +10,7 @@
                  -> le projet apparaît dans Shop avec un bouton "Buy". buy:"" = bouton grisé en attendant le lien
      team      clé d'une team (voir "teams" plus bas) ou nom libre ; affiché seulement si renseigné
      year, role, tools:["Blender", ...]   (optionnels, petites pastilles)
+     stack:true (breakdown) texte plus petit au-dessus de la vidéo, à droite
      start      (vidéo seule) seconde de départ, pour sauter une intro : start:2.5
      breakdown:[
        {kind:"vfx", title:"Smoke & particles", desc:"...", yt:"ID_YOUTUBE"},
@@ -29,7 +30,9 @@ const teams = {
   },
   mih: {
     name: "Made In Heaven", logo: "logos/mih.png",
+    tiktok:  "https://www.tiktok.com/@madeinheavenrl",
     youtube: "https://www.youtube.com/@MadeInHeavenRL",
+    x:       "https://x.com/madeinheavenfx",
     // vidéos de la team affichées dans "My teams" (ouvrent YouTube) ; title:"" = "Watch on YouTube"
     videos: [
       {id:"YKIO_dswgPI", title:"Keep Me Going"},
@@ -63,7 +66,7 @@ const projects = [
      {kind:"3d", title:"Card floor", desc:"From the Blender viewport to the final render.",
       before:"breakdowns/voracity_avant.mp4", beforePoster:"breakdowns/voracity_avant.jpg",
       src:"breakdowns/voracity_apres.mp4", poster:"breakdowns/voracity_apres.jpg"},
-     {kind:"3d", title:"Card floor, after compositing", desc:"The final shot, once the render is composited.",
+     {kind:"3d", title:"Card floor, after compositing", desc:"The final shot, once the render is composited.", stack:true,
       src:"breakdowns/voracity_final.mp4", poster:"breakdowns/voracity_final.jpg"},
      {kind:"3d", title:"Cars hit effect", desc:"how I managed to create a cool shock effect between rocket league cars in Blender", src:"breakdowns/Breakdown_1_Voracity.mp4", poster:"breakdowns/Breakdown_1_Voracity.jpg"}
    ]},

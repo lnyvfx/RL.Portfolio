@@ -178,6 +178,15 @@ html[data-sb="c"] .sb-top{padding:0;justify-content:center}
 .bd-media video,.bd-media>img,.bd-media .yt{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;border:0;padding:0}
 .bd-media .yt{cursor:pointer}
 .bd-media .yt img,.bd-media .yt iframe{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border:0}
+.bd-list>.bd-row.stack{margin-top:calc(-1 * clamp(40px,7vw,110px))}
+.bd-row.stack .bd-col{grid-column:2;display:flex;flex-direction:column;gap:18px}
+.bd-row.stack .bd-text h3{font-size:1.15rem;margin-bottom:8px}
+.bd-row.stack .bd-text p{font-size:12.5px;line-height:1.8}
+/* Projects : même mise en page que les breakdowns */
+.plist{display:flex;flex-direction:column;gap:clamp(90px,13vw,170px);margin-top:clamp(60px,9vw,110px)}
+.pmeta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin-bottom:16px;font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#7a7a7a}
+.pteam{display:inline-flex;align-items:center;gap:8px;color:#bdbdbd}
+.pteam img{height:20px;width:auto}
 /* avant / après */
 .cmp{cursor:ew-resize;touch-action:pan-y;user-select:none;-webkit-user-select:none;--x:50%}
 .cmp .after{clip-path:inset(0 0 0 var(--x))}
@@ -186,7 +195,7 @@ html[data-sb="c"] .sb-top{padding:0;justify-content:center}
 .cmp .lbl{position:absolute;top:12px;padding:4px 9px;border-radius:5px;background:rgba(5,5,5,.65);color:#e6e6e6;font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;pointer-events:none}
 .cmp .lbl.l{left:12px}.cmp .lbl.r{right:12px}
 .cmp:focus-visible{outline:2px solid #fff;outline-offset:3px}
-@media(max-width:860px){.bd-row,.bd-row.rev{grid-template-columns:1fr;gap:26px}.bd-row.rev .bd-text{order:0}.bd-list{gap:80px}}
+@media(max-width:860px){.bd-row.stack .bd-col{grid-column:auto}.bd-row,.bd-row.rev{grid-template-columns:1fr;gap:26px}.bd-row.rev .bd-text{order:0}.bd-list{gap:80px}}
 
 /* Breakdown (quand il y en a) */
 .bd-tabs{display:flex;gap:8px;margin-bottom:18px}
@@ -346,9 +355,7 @@ kbd{font:600 12px var(--mono);padding:4px 9px;border-radius:5px;background:#1d1d
           <span class="sep" aria-hidden="true"></span>
           <a href="https://madeinheavenfx.com/" target="_blank" rel="noopener" aria-label="Made In Heaven"><img src="logos/mih.png" alt="MIH"></a>
         </div>
-        <div class="sec-head">All projects</div>
-        <div class="filters" id="projFilters"></div>
-        <div class="cards" id="projGrid"></div>
+        <div class="plist" id="projList"></div>
         <div class="more"><a class="cbtn" href="https://www.youtube.com/@LnyVFX/playlists" target="_blank" rel="noopener">See more on YouTube</a></div>
       </div>
     </section>
@@ -466,9 +473,6 @@ kbd{font:600 12px var(--mono);padding:4px 9px;border-radius:5px;background:#1d1d
       </div>
     </section>
 
-    <section class="view" id="view-project" data-view="project" hidden>
-      <div class="page" id="projectMount"></div>
-    </section>
   </main>
   <footer class="site-foot">
     <span>&copy; 2026 Lny VFX</span>
@@ -603,6 +607,12 @@ function bdItem(b, p, withProject, idx) {
   const text = document.createElement('div'); text.className = 'bd-text';
   text.innerHTML = (b.title ? `<h3>${esc(b.title)}</h3>` : '') + (b.desc ? `<p>${esc(b.desc)}</p>` : '') +
     (withProject ? `<a class="bd-proj" href="#/project/${encodeURIComponent(p.id)}">${esc(p.title)} &rarr;</a>` : '');
+  if (b.stack) {   // stack:true -> même colonne que l'avant/après, texte au-dessus de la vidéo
+    el.className = 'bd-row stack';
+    const col = document.createElement('div'); col.className = 'bd-col';
+    col.appendChild(text); col.appendChild(bdMedia(b)); el.appendChild(col);
+    return el;
+  }
   el.appendChild(text); el.appendChild(bdMedia(b));
   return el;
 }
@@ -621,20 +631,6 @@ function filterTabs(items, grid) {
     tabs.appendChild(t);
   });
   return tabs;
-}
-function teamBox(key) {
-  if (!key) return '';
-  const t = teamOf(key);
-  if (!t) return `<div class="box team-box"><span class="label">Team</span><div class="tname">${esc(key)}</div></div>`;
-  const links = NET.filter(([k]) => t[k]).map(([k, n]) =>
-    `<a href="${esc(t[k])}" target="_blank" rel="noopener" aria-label="${esc(t.name)} on ${n}" title="${n}">${icoFill(k)}</a>`).join('');
-  return `<div class="box team-box">
-    <div class="team-head">
-      ${t.logo ? `<img class="team-logo" src="${esc(t.logo)}" alt="${esc(t.name)} logo">` : ''}
-      <div><span class="label">Team</span><div class="tname">${esc(t.name)}</div></div>
-    </div>
-    ${links ? `<div class="team-links">${links}</div>` : ''}
-  </div>`;
 }
 const arrowDl = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16"/></svg>';
 function fileButton(p, cls, long) {
@@ -712,57 +708,24 @@ function buildShop() {
   }).join('') + '</div>';
   mount.querySelectorAll('img[data-thumb]').forEach(i => setThumb(i, i.dataset.thumb));
 }
-function buildProjects() {
-  const grid = $('#projGrid'), bar = $('#projFilters');
-  grid.innerHTML = projects.map(p => {
-    const t = p.team ? (teamOf(p.team) ? teamOf(p.team).name : p.team) : '';
-    return `<a class="card pcard" data-type="${esc(p.type)}" href="#/project/${encodeURIComponent(p.id)}">
-      <span class="cmedia"><img alt="" loading="lazy" data-thumb="${esc(p.id)}"></span>
-      <span class="cbody"><h4>${esc(p.title)}</h4><span class="cmeta">${esc(p.label)}${t ? ' &middot; ' + esc(t) : ''}</span></span>
-    </a>`;
-  }).join('');
-  grid.querySelectorAll('img[data-thumb]').forEach(i => setThumb(i, i.dataset.thumb));
-  const NAMES = {solo:'Solo', duo:'Duo', team:'Team'};
-  const types = ['solo', 'duo', 'team'].filter(k => projects.some(p => p.type === k));
-  if (types.length < 2) return;
-  ['all', ...types].forEach((k, i) => {
-    const b = document.createElement('button');
-    b.type = 'button'; b.textContent = k === 'all' ? 'All' : NAMES[k];
-    if (!i) b.className = 'on';
-    b.addEventListener('click', () => {
-      bar.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
-      grid.querySelectorAll('.pcard').forEach(c => c.hidden = k !== 'all' && c.dataset.type !== k);
-    });
-    bar.appendChild(b);
+function buildProjects() {   // un projet par section, miniature d'un côté et texte de l'autre (en alternance)
+  const list = $('#projList');
+  projects.forEach((p, i) => {
+    const t = p.team ? teamOf(p.team) : null;
+    const team = t ? `<span class="pteam">${t.logo ? `<img src="${esc(t.logo)}" alt="">` : ''}${esc(t.name)}</span>`
+               : (p.team ? `<span class="pteam">${esc(p.team)}</span>` : '');
+    const el = document.createElement('article');
+    el.className = 'bd-row prow' + (i % 2 ? ' rev' : ''); el.id = 'p-' + p.id;
+    const text = document.createElement('div'); text.className = 'bd-text';
+    text.innerHTML = `<div class="pmeta"><span>${esc(p.label)}</span>${team}</div>
+      <h3>${esc(p.title)}</h3><p></p>
+      <a class="bd-proj" href="https://youtu.be/${esc(p.id)}" target="_blank" rel="noopener">Watch on YouTube &nearr;</a>`;
+    text.querySelector('p').textContent = p.long || p.desc;
+    const media = document.createElement('div'); media.className = 'bd-media wide';
+    media.appendChild(ytPlayer(p.id, p.title));
+    el.appendChild(text); el.appendChild(media);
+    list.appendChild(el);
   });
-}
-function renderProject(p) {
-  const idx = projects.indexOf(p);
-  const meta = [p.year, p.role].concat(p.tools || []).filter(Boolean);
-  const prev = projects[(idx - 1 + projects.length) % projects.length];
-  const next = projects[(idx + 1) % projects.length];
-  const href = q => `#/project/${encodeURIComponent(q.id)}`;
-  $('#projectMount').innerHTML = `
-    <a class="back" href="#/projects">&larr; All projects</a>
-    <div class="bento">
-      <div class="box thumb"><img id="pThumb" alt="Thumbnail of ${esc(p.title)}"></div>
-      <div class="side">
-        <div class="box name">
-          <span class="tag ${esc(p.type)}">${esc(p.label)}</span>
-          <h1>${esc(p.title)}</h1>
-          ${meta.length ? `<ul class="meta">${meta.map(m => `<li>${esc(m)}</li>`).join('')}</ul>` : ''}
-          <a class="cbtn" href="https://youtu.be/${esc(p.id)}" target="_blank" rel="noopener">Watch on YouTube</a>
-        </div>
-        ${teamBox(p.team)}
-      </div>
-      <div class="box about"><span class="label">About the project</span><p id="pAbout"></p></div>
-    </div>
-    <nav class="pager" aria-label="Other projects">
-      <a href="${href(prev)}"><small>&larr; Previous</small><b>${esc(prev.title)}</b></a>
-      <a href="${href(next)}"><small>Next &rarr;</small><b>${esc(next.title)}</b></a>
-    </nav>`;
-  setThumb($('#pThumb'), p.id);
-  $('#pAbout').textContent = p.long || p.desc;
 }
 
 /* ---------- 3D : configurateur (Three.js chargé à la première visite de la page) + maps ---------- */
@@ -983,13 +946,10 @@ const TITLES = {projects:'LnyVFX', breakdowns:'Breakdowns – LnyVFX', teams:'My
 function route(first) {
   const h = location.hash.replace(/^#\/?/, '').split('/');
   let name = h[0] || 'projects', arg = decodeURIComponent(h[1] || ''), nav = name;
-  if (name === 'project') {
-    const p = projects.find(x => x.id === arg);
-    if (p) { renderProject(p); nav = 'projects'; document.title = p.title + ' – LnyVFX'; }
-    else { name = nav = 'projects'; }
-  }
+  let target = null;
+  if (name === 'project') { target = document.getElementById('p-' + arg); name = nav = 'projects'; }   // anciens liens "projet" : on défile jusqu'au projet
   if (!views[name]) name = nav = 'projects';
-  if (name !== 'project') document.title = TITLES[name];
+  document.title = TITLES[name];
   Object.entries(views).forEach(([k, v]) => {
     const on = k === name;
     if (v.hidden === on) {
@@ -1002,7 +962,8 @@ function route(first) {
     if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
   if (name === '3d') ensure3D();
-  if (!first) { scrollTo({top:0, behavior:'instant'}); closeMobileNav(); }
+  if (target) { closeMobileNav(); target.scrollIntoView({block:'center'}); }
+  else if (!first) { scrollTo({top:0, behavior:'instant'}); closeMobileNav(); }
 }
 buildProjects(); buildBreakdowns(); buildTeams(); buildShop();
 addEventListener('hashchange', () => route(false));

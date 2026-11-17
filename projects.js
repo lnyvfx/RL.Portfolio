@@ -60,6 +60,9 @@ const projects = [
    buy:"https://lynvex.gumroad.com/l/kickstart", price:"15 €"},
   {id:"PTPKU8zK7hM", title:"Voracity", type:"duo", label:"Duo edit", team:"nixus",
    desc:"A duo edit with @Bazill blending visual effects and rhythm to showcase the gameplay.", breakdown:[
+     {kind:"3d", title:"Card floor", desc:"From the Blender viewport to the final render.",
+      before:"breakdowns/voracity_avant.mp4", beforePoster:"breakdowns/voracity_avant.jpg",
+      src:"breakdowns/voracity_apres.mp4", poster:"breakdowns/voracity_apres.jpg"},
      {kind:"3d", title:"Cars hit effect", desc:"how I managed to create a cool shock effect between rocket league cars in Blender", src:"breakdowns/Breakdown_1_Voracity.mp4", poster:"breakdowns/Breakdown_1_Voracity.jpg"}
    ]},
   {id:"z1bxOp29GUc", title:"Revolver", type:"team", label:"Team project", team:"nixus",

@@ -531,6 +531,7 @@ function bdMedia(b) {
       '<span class="lbl l">Before</span><span class="lbl r">After</span><span class="line"></span><span class="knob">&lt;&gt;</span>';
     const [vb, va] = box.querySelectorAll('video');
     vb.muted = va.muted = true;
+    va.addEventListener('loadedmetadata', () => { if (va.videoWidth) box.style.aspectRatio = va.videoWidth + '/' + va.videoHeight; });   // format d'origine
     let x = 50;
     const set = n => { x = Math.max(0, Math.min(100, n)); box.style.setProperty('--x', x + '%'); box.setAttribute('aria-valuenow', Math.round(x)); };
     const fromEvent = e => { const r = box.getBoundingClientRect(); set((e.clientX - r.left) / r.width * 100); };

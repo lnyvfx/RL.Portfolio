@@ -165,7 +165,7 @@ html[data-sb="c"] .sb-top{padding:0;justify-content:center}
 .soon{display:grid;place-items:center;min-height:180px;border:1px dashed #333;border-radius:12px;text-align:center;color:var(--muted);font-family:var(--display);font-weight:500;font-size:clamp(1rem,2vw,1.3rem);letter-spacing:.02em}
 
 /* Breakdowns : sections aérées, texte d'un côté, vidéo de l'autre */
-.bd-list{display:flex;flex-direction:column;gap:clamp(90px,14vw,190px);margin-top:clamp(30px,6vw,70px)}
+.bd-list{display:flex;flex-direction:column;gap:var(--peek-gap,clamp(90px,14vw,190px));margin-top:clamp(20px,3vw,32px)}
 .bd-row{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(32px,6vw,90px);align-items:center}
 .bd-row.rev .bd-text{order:2}
 .bd-row.rev{grid-template-columns:minmax(0,6fr) minmax(0,5fr)}
@@ -183,7 +183,7 @@ html[data-sb="c"] .sb-top{padding:0;justify-content:center}
 .bd-row.stack .bd-text h3{font-size:1.15rem;margin-bottom:8px}
 .bd-row.stack .bd-text p{font-size:12.5px;line-height:1.8}
 /* Projects : même mise en page que les breakdowns */
-.plist{display:flex;flex-direction:column;gap:clamp(90px,13vw,170px);margin-top:clamp(60px,9vw,110px)}
+.plist{display:flex;flex-direction:column;gap:var(--peek-gap,clamp(90px,13vw,170px));margin-top:clamp(28px,4vw,48px)}
 .pmeta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin-bottom:16px;font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#7a7a7a}
 .pteam{display:inline-flex;align-items:center;gap:8px;color:#bdbdbd}
 .pteam img{height:20px;width:auto}
@@ -195,7 +195,7 @@ html[data-sb="c"] .sb-top{padding:0;justify-content:center}
 .cmp .lbl{position:absolute;top:12px;padding:4px 9px;border-radius:5px;background:rgba(5,5,5,.65);color:#e6e6e6;font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;pointer-events:none}
 .cmp .lbl.l{left:12px}.cmp .lbl.r{right:12px}
 .cmp:focus-visible{outline:2px solid #fff;outline-offset:3px}
-@media(max-width:860px){.bd-row.stack .bd-col{grid-column:auto}.bd-row,.bd-row.rev{grid-template-columns:1fr;gap:26px}.bd-row.rev .bd-text{order:0}.bd-list{gap:80px}}
+@media(max-width:860px){.bd-row.stack .bd-col{grid-column:auto}.bd-row,.bd-row.rev{grid-template-columns:1fr;gap:26px}.bd-row.rev .bd-text{order:0}}
 
 /* Breakdown (quand il y en a) */
 .bd-tabs{display:flex;gap:8px;margin-bottom:18px}
@@ -662,6 +662,7 @@ function buildBreakdowns() {   // un onglet par projet ; le lien vers le projet 
   });
   function show(i) {
     panels.forEach((x, k) => { x.list.hidden = k !== i; x.t.classList.toggle('on', k === i); x.t.setAttribute('aria-selected', k === i); });
+    if (typeof fitPeek === 'function') fitPeek();
   }
   mount.appendChild(tabs);
   panels.forEach(x => mount.appendChild(x.list));
@@ -939,6 +940,22 @@ document.querySelectorAll('.copy').forEach(b => b.addEventListener('click', () =
   try { navigator.clipboard.writeText(b.dataset.copy).then(() => done(true), () => done(false)); } catch (e) { done(false); }
 }));
 
+/* ---------- Espacement : on laisse dépasser le haut du contenu suivant en bas de l'écran ---------- */
+// L'écart entre deux contenus s'adapte à la hauteur de l'écran pour qu'on voie ~80 px du suivant (sans toucher aux tailles).
+const PEEK = 80, GAP_MIN = 36, GAP_MAX = 170;
+function fitPeek() {
+  document.querySelectorAll('#projList, .bd-list').forEach(list => {
+    if (!list.offsetParent) return;                         // liste cachée (autre page ou autre onglet)
+    const first = list.firstElementChild; if (!first) return;
+    const bottom = first.getBoundingClientRect().bottom + scrollY;
+    const gap = Math.max(GAP_MIN, Math.min(GAP_MAX, innerHeight - bottom - PEEK));
+    list.style.setProperty('--peek-gap', Math.round(gap) + 'px');
+  });
+}
+const peekRO = new ResizeObserver(() => fitPeek());
+addEventListener('resize', fitPeek);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitPeek);
+
 /* ---------- Routeur (#/projects, #/breakdowns, #/project/ID ...) ---------- */
 const views = {};
 document.querySelectorAll('.view').forEach(v => views[v.dataset.view] = v);
@@ -962,10 +979,12 @@ function route(first) {
     if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
   if (name === '3d') ensure3D();
+  fitPeek();
   if (target) { closeMobileNav(); target.scrollIntoView({block:'center'}); }
   else if (!first) { scrollTo({top:0, behavior:'instant'}); closeMobileNav(); }
 }
 buildProjects(); buildBreakdowns(); buildTeams(); buildShop();
+document.querySelectorAll('#projList, .bd-list').forEach(l => l.firstElementChild && peekRO.observe(l.firstElementChild));
 addEventListener('hashchange', () => route(false));
 route(true);
 </script>

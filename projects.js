@@ -43,7 +43,10 @@ const teams = {
     name: "Team Soul", logo: "logos/soul.png",
     tiktok:  "https://www.tiktok.com/@team_soul_rl1",
     youtube: "https://www.youtube.com/@TeamSoulrl",
-    x:       "https://x.com/teamsoulrl"
+    x:       "https://x.com/teamsoulrl",
+    videos: [
+      {id:"n4Fp4iKFTws", title:"INVERSION"}
+    ]
   },
 };
 

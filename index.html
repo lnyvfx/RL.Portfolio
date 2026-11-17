@@ -75,13 +75,15 @@ html[data-sb="c"] .sb-top{padding:0;justify-content:center}
 
 /* Boutons avec coins (comme le site de référence) */
 .cbtn{--c:#8c8c8c;position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:164px;height:48px;padding:0 26px;background:#101010;color:#fff;font:600 12.5px/1 var(--mono);letter-spacing:.01em;border:0;cursor:pointer;transition:background .2s}
-.cbtn::before{content:"";position:absolute;inset:-1px;pointer-events:none;
+.cbtn::before{content:"";position:absolute;inset:-1px;pointer-events:none;transition:inset .32s cubic-bezier(.2,.8,.2,1),background-size .32s cubic-bezier(.2,.8,.2,1);
   background:
    linear-gradient(var(--c),var(--c)) 0 0/12px 1px no-repeat, linear-gradient(var(--c),var(--c)) 0 0/1px 12px no-repeat,
    linear-gradient(var(--c),var(--c)) 100% 0/12px 1px no-repeat, linear-gradient(var(--c),var(--c)) 100% 0/1px 12px no-repeat,
    linear-gradient(var(--c),var(--c)) 0 100%/12px 1px no-repeat, linear-gradient(var(--c),var(--c)) 0 100%/1px 12px no-repeat,
    linear-gradient(var(--c),var(--c)) 100% 100%/12px 1px no-repeat, linear-gradient(var(--c),var(--c)) 100% 100%/1px 12px no-repeat}
-.cbtn:hover{background:#181818;--c:#fff}
+.cbtn:hover{background:#141414;--c:#cfcfcf}
+.cbtn:hover::before{inset:5px}   /* les coins viennent vers le texte */
+.cbtn:active::before{inset:7px}
 .cbtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 /* ---------- Projects ---------- */
@@ -309,6 +311,9 @@ kbd{font:600 12px var(--mono);padding:4px 9px;border-radius:5px;background:#1d1d
   .dl .cbtn{width:100%}
 }
 @media(max-width:560px){.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}.page{padding-top:36px}}
+.rv-wait{opacity:0;transform:translateY(18px)}
+.rv-line{display:block;white-space:nowrap}
+.rv-wait.rv-in{opacity:1;transform:none;transition:opacity .7s ease,transform .85s cubic-bezier(.2,.7,.2,1)}
 @media(prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important}
   html{scroll-behavior:auto}
@@ -663,6 +668,7 @@ function buildBreakdowns() {   // un onglet par projet ; le lien vers le projet 
   function show(i) {
     panels.forEach((x, k) => { x.list.hidden = k !== i; x.t.classList.toggle('on', k === i); x.t.setAttribute('aria-selected', k === i); });
     if (typeof fitPeek === 'function') fitPeek();
+    if (typeof armReveal === 'function' && panels[i].list.offsetParent) armReveal(panels[i].list);
   }
   mount.appendChild(tabs);
   panels.forEach(x => mount.appendChild(x.list));
@@ -956,10 +962,54 @@ const peekRO = new ResizeObserver(() => fitPeek());
 addEventListener('resize', fitPeek);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitPeek);
 
+/* ---------- Apparition des textes (fondu + montée), ligne par ligne, quand ils arrivent à l'écran ---------- */
+// Seuls les textes bougent : vidéos, images, boutons et cadres restent fixes.
+const RV_SEL = 'h1,h2,h3,h4,h5,p,.eyebrow,.label,.pmeta,.cmeta,.bd-proj,.sec-head,.partners .pl,.pn,.pm,.tname,.team-projects span,.steps li > span:not(.sn):not(.cmd),.price';
+const RV_SKIP = '.cbtn,button,.yt,.cmp,.vbox,.seg,.bd-media';
+const RV_STEP = 90;                                           // décalage entre deux lignes (ms)
+const rvOff = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function splitLines(el) {                                     // découpe un texte simple en lignes réelles
+  if (![...el.childNodes].every(n => n.nodeType === 3)) return null;
+  const orig = el.textContent; if (!/\S\s+\S/.test(orig)) return null;
+  el.textContent = '';
+  const spans = orig.split(/(\s+)/).map(w => {
+    if (/^\s+$/.test(w) || !w) { el.appendChild(document.createTextNode(w)); return null; }
+    const sp = document.createElement('span'); sp.textContent = w; el.appendChild(sp); return sp;
+  }).filter(Boolean);
+  const lines = [];
+  spans.forEach(sp => { const t = sp.offsetTop; const last = lines[lines.length - 1];
+    if (last && Math.abs(last.top - t) < 3) last.words.push(sp.textContent); else lines.push({top: t, words: [sp.textContent]}); });
+  if (lines.length < 2) { el.textContent = orig; return null; }
+  el.textContent = '';
+  const out = lines.map(l => { const d = document.createElement('span'); d.className = 'rv-line rv-wait'; d.textContent = l.words.join(' '); el.appendChild(d); return d; });
+  return {lines: out, restore: () => { if (el.querySelector('.rv-line')) el.textContent = orig; }};
+}
+function reveal(el, delay) {
+  const sp = splitLines(el);
+  if (sp) {
+    el.classList.remove('rv-wait');
+    sp.lines.forEach((l, i) => setTimeout(() => l.classList.add('rv-in'), delay + i * RV_STEP));
+    setTimeout(sp.restore, delay + sp.lines.length * RV_STEP + 900);   // on remet le texte d'origine une fois fini
+  } else setTimeout(() => el.classList.add('rv-in'), delay);
+}
+const rvIO = new IntersectionObserver(entries => {
+  const vis = entries.filter(e => e.isIntersecting).map(e => e.target);
+  vis.sort((a, b) => { const A = a.getBoundingClientRect(), B = b.getBoundingClientRect(); return (A.top - B.top) || (A.left - B.left); });
+  vis.forEach((el, i) => { rvIO.unobserve(el); reveal(el, i * RV_STEP); });
+}, {rootMargin: '0px 0px -6% 0px'});
+function armReveal(scope) {
+  if (rvOff || !scope) return;
+  scope.querySelectorAll(RV_SEL).forEach(el => {
+    if (el.closest(RV_SKIP) || el.parentElement.closest(RV_SEL)) return;   // pas deux fois le même texte
+    el.classList.remove('rv-in'); el.classList.add('rv-wait'); rvIO.observe(el);
+  });
+}
+
 /* ---------- Routeur (#/projects, #/breakdowns, #/project/ID ...) ---------- */
 const views = {};
 document.querySelectorAll('.view').forEach(v => views[v.dataset.view] = v);
 const TITLES = {projects:'LnyVFX', breakdowns:'Breakdowns – LnyVFX', teams:'My teams – LnyVFX', shop:'Shop – LnyVFX', '3d':'3D – LnyVFX', ingame:'In game – LnyVFX'};
+let lastView = null;
 function route(first) {
   const h = location.hash.replace(/^#\/?/, '').split('/');
   let name = h[0] || 'projects', arg = decodeURIComponent(h[1] || ''), nav = name;
@@ -980,6 +1030,7 @@ function route(first) {
   });
   if (name === '3d') ensure3D();
   fitPeek();
+  if (name !== lastView) { lastView = name; armReveal(views[name]); }
   if (target) { closeMobileNav(); target.scrollIntoView({block:'center'}); }
   else if (!first) { scrollTo({top:0, behavior:'instant'}); closeMobileNav(); }
 }

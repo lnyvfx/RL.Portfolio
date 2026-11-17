@@ -244,6 +244,40 @@ html[data-sb="c"] .sb-top{padding:0;justify-content:center}
 .note{margin-top:12px;color:var(--muted);font:400 12px/1.7 var(--mono)}
 @media(max-width:900px){.layout{grid-template-columns:1fr}.vbox{height:clamp(320px,56vh,520px)}}
 
+/* ---------- In game ---------- */
+.tools{display:flex;flex-direction:column;gap:14px}
+.tool{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,64px);align-items:center;padding:clamp(22px,3.4vw,38px);background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.tool.solo{grid-template-columns:1fr}
+.tool-main{display:flex;flex-direction:column;align-items:flex-start;gap:20px}
+.tool-head{display:flex;align-items:center;gap:16px}
+.tlogo{width:58px;height:58px;flex:none;display:grid;place-items:center;border-radius:12px;background:#0a0a0a;border:1px solid var(--line2);overflow:hidden}
+.tlogo img{width:100%;height:100%;object-fit:contain;padding:9px}
+.tlogo svg{width:26px;height:26px;fill:none;stroke:#d8d8d8;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.tlogo .tfb{display:none}
+.tlogo.nologo .tfb{display:block}
+.tool-head .label{display:block;margin-bottom:4px}
+.tool-head h3{font-size:clamp(1.4rem,2.4vw,1.8rem);font-weight:500;letter-spacing:-.015em;line-height:1.1}
+.tool-desc{font:400 13px/1.85 var(--mono);color:var(--muted);max-width:46ch}
+.tool .cbtn svg{width:14px;height:14px}
+.plugins{display:flex;flex-direction:column;gap:8px}
+.plugins .label{margin-bottom:4px}
+.plug{display:grid;grid-template-columns:1fr auto 16px;align-items:center;gap:14px;padding:16px 18px;border:1px solid var(--line2);border-radius:8px;background:#0c0c0c;transition:border-color .15s,background .15s}
+.plug:hover{border-color:#5a5a5a;background:#151515}
+.plug .pn{font-weight:500;font-size:.98rem;color:#f0f0f0}
+.plug em{font:normal 500 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#bdbdbd;border:1px solid #3a3a3a;border-radius:4px;padding:3px 6px;margin-left:8px;vertical-align:2px}
+.plug .pm{font:400 11.5px var(--mono);color:#6d6d6d}
+.plug svg{width:16px;height:16px;fill:none;stroke:#9a9a9a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:stroke .15s}
+.plug:hover svg{stroke:#fff}
+.steps{list-style:none;display:flex;flex-direction:column;gap:10px}
+.steps li{display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:16px 18px;border:1px solid var(--line2);border-radius:8px;background:#0c0c0c;font-size:.95rem;color:#e6e6e6}
+.sn{width:24px;height:24px;flex:none;display:grid;place-items:center;border-radius:50%;border:1px solid #444;font:600 11px var(--mono);color:#cfcfcf}
+kbd{font:600 12px var(--mono);padding:4px 9px;border-radius:5px;background:#1d1d1d;border:1px solid #3a3a3a;border-bottom-width:3px;color:#fff}
+.cmd{display:inline-flex;align-items:stretch;margin-left:auto;border:1px solid #3a3a3a;border-radius:6px;overflow:hidden}
+.cmd code{font:500 12.5px var(--mono);padding:8px 12px;background:#161616;color:#fff}
+.copy{font:600 11px var(--mono);padding:0 12px;border:0;border-left:1px solid #3a3a3a;background:#0f0f0f;color:#bdbdbd;cursor:pointer;transition:color .15s,background .15s}
+.copy:hover{color:#fff;background:#1b1b1b}
+@media(max-width:860px){.tool{grid-template-columns:1fr}.cmd{margin-left:0}}
+
 /* ---------- Responsive ---------- */
 @media(max-width:860px){
   :root{--sbw:0px}
@@ -388,8 +422,50 @@ html[data-sb="c"] .sb-top{padding:0;justify-content:center}
       <div class="page">
         <div class="eyebrow"><span class="ei"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="7" width="20" height="11" rx="5.5"/><path d="M7 10.2v4.6M4.7 12.5h4.6"/><circle cx="15.5" cy="11.6" r=".9"/><circle cx="18" cy="14" r=".9"/></svg></span><span>In game</span></div>
         <h2 class="ptitle">In game</h2>
-        <p class="psub">In-game content and resources.</p>
-        <div class="soon">Coming soon</div>
+        <p class="psub">The mods and tools I use to record and grade my Rocket League clips.</p>
+        <div class="tools">
+          <!-- logos : mets logos/bakkesmod.png et logos/reshade.png (sinon une icône s'affiche à la place) -->
+          <article class="tool">
+            <div class="tool-main">
+              <div class="tool-head">
+                <span class="tlogo"><img src="logos/bakkesmod.png" alt="BakkesMod logo" onerror="this.parentNode.classList.add('nologo');this.remove()"><svg class="tfb" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0V8zM12 17v4"/></svg></span>
+                <div><span class="label">Mod &middot; Plugins</span><h3>BakkesMod</h3></div>
+              </div>
+              <p class="tool-desc">The mod behind my cinematics. Install it first, then add the two plugins below from BakkesPlugins.</p>
+              <a class="cbtn" href="https://bakkesmod.com/" target="_blank" rel="noopener">Download BakkesMod <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
+            </div>
+            <div class="plugins">
+              <span class="label">Plugins</span>
+              <a class="plug" href="https://bakkesplugins.com/plugins/view/95" target="_blank" rel="noopener"><span class="pn">Cinematic Buddy</span><span class="pm">BakkesPlugins</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
+              <a class="plug" href="https://bakkesplugins.com/plugins/view/105" target="_blank" rel="noopener"><span class="pn">Replay Itemmod <em>Open source</em></span><span class="pm">BakkesPlugins</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
+            </div>
+          </article>
+
+          <article class="tool">
+            <div class="tool-main">
+              <div class="tool-head">
+                <span class="tlogo nologo"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="13" height="11" rx="2"/><path d="M15.5 10.5l6-3.5v10l-6-3.5"/></svg></span>
+                <div><span class="label">Built in</span><h3>Dollycam</h3></div>
+              </div>
+              <p class="tool-desc">Already installed in Rocket League, nothing to download. Just turn it on from the console.</p>
+            </div>
+            <ol class="steps">
+              <li><span class="sn">1</span><span>Press <kbd>F6</kbd> to open the console</span></li>
+              <li><span class="sn">2</span><span>Type the command</span><span class="cmd"><code>exec dollycam</code><button type="button" class="copy" data-copy="exec dollycam">Copy</button></span></li>
+            </ol>
+          </article>
+
+          <article class="tool solo">
+            <div class="tool-main">
+              <div class="tool-head">
+                <span class="tlogo"><img src="logos/reshade.png" alt="ReShade logo" onerror="this.parentNode.classList.add('nologo');this.remove()"><svg class="tfb" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></span>
+                <div><span class="label">Post-processing</span><h3>ReShade</h3></div>
+              </div>
+              <p class="tool-desc">Advanced post-processing everywhere. I use it to grade the game straight in the replay.</p>
+              <a class="cbtn" href="https://reshade.me/" target="_blank" rel="noopener">Get ReShade <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
+            </div>
+          </article>
+        </div>
       </div>
     </section>
 
@@ -895,6 +971,12 @@ function init3D() {
     renderer.render(scene,camera);
   })();
 }
+
+/* ---------- In game : bouton "Copy" ---------- */
+document.querySelectorAll('.copy').forEach(b => b.addEventListener('click', () => {
+  const done = ok => { b.textContent = ok ? 'Copied' : 'Copy'; setTimeout(() => b.textContent = 'Copy', 1400); };
+  try { navigator.clipboard.writeText(b.dataset.copy).then(() => done(true), () => done(false)); } catch (e) { done(false); }
+}));
 
 /* ---------- Routeur (#/projects, #/breakdowns, #/project/ID ...) ---------- */
 const views = {};

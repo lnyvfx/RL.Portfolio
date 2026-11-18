@@ -314,7 +314,37 @@ kbd{font:600 12px var(--mono);padding:4px 9px;border-radius:5px;background:#1d1d
 .cmd code{font:500 12.5px var(--mono);padding:8px 12px;background:#161616;color:#fff}
 .copy{font:600 11px var(--mono);padding:0 12px;border:0;border-left:1px solid #3a3a3a;background:#0f0f0f;color:#bdbdbd;cursor:pointer;transition:color .15s,background .15s}
 .copy:hover{color:#fff;background:#1b1b1b}
-@media(max-width:860px){.tool{grid-template-columns:1fr}.cmd{margin-left:0}}
+/* Blender2RL */
+.tool.wide{grid-template-columns:minmax(0,1fr);align-items:stretch;gap:clamp(30px,4vw,48px)}
+.b2-top{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(24px,4vw,56px);align-items:center}
+.b2-dl{display:flex;flex-wrap:wrap;gap:12px}
+.b2-dl .cbtn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.b2rl .note{margin-top:-6px}
+.b2-video{border-radius:10px;overflow:hidden;background:#000;box-shadow:0 0 0 1px var(--line);aspect-ratio:16/9}
+.b2-video video{width:100%;height:100%;display:block;background:#000}
+.b2-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,56px);padding-top:clamp(26px,3vw,36px);border-top:1px solid var(--line)}
+.b2-sec .label{display:block;margin-bottom:14px}
+.b2-sec > p{font:400 13px/1.85 var(--mono);color:var(--muted);margin-bottom:12px;max-width:62ch}
+.b2rl code{font:500 12px var(--mono);color:#e8e8e8;background:#181818;border:1px solid #2c2c2c;border-radius:4px;padding:1px 6px}
+.b2rl .cmd code{border:0;border-radius:0;padding:8px 12px;background:#161616}
+.b2rl .steps li{font-size:.92rem;line-height:1.6}
+.b2rl .steps li b{font-weight:600;color:#fff}
+.b2rl > .b2-sec{padding-top:clamp(26px,3vw,36px);border-top:1px solid var(--line)}
+.cmds{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cmds li{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:16px 18px;border:1px solid var(--line2);border-radius:8px;background:#0c0c0c}
+.cmds li .cmd{margin-left:0;max-width:100%}
+.cmds li .cmd code{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmds p{font:400 12.5px/1.8 var(--mono);color:var(--muted)}
+.cmds .def{display:inline-block;margin-left:4px;color:#cfcfcf}
+.b2rl .steps li{flex-wrap:nowrap;align-items:flex-start}
+.b2rl .steps li > span:not(.sn):not(.cmd){flex:1;min-width:0}
+.b2rl .steps li .sn{margin-top:2px}
+.b2rl .steps li:has(.cmd){flex-wrap:wrap}
+.b2rl .steps li:has(.cmd) > span:not(.sn):not(.cmd){flex:1 1 calc(100% - 40px)}
+.b2rl .steps li .cmd{margin-left:38px;max-width:calc(100% - 38px)}
+.b2rl .steps li .cmd code{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:1000px){.b2-top,.b2-grid,.cmds{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:860px){.tool{grid-template-columns:1fr}.cmd{margin-left:0}.steps li .cmd{max-width:100%}.steps li .cmd code{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
 
 /* ---------- Intro ---------- */
 /* pendant l'intro le site est en noir et blanc, puis il reprend ses couleurs */
@@ -505,6 +535,57 @@ html.intro-on{overflow:hidden}
               <li><span class="sn">1</span><span>Press <kbd>F6</kbd> to open the console</span></li>
               <li><span class="sn">2</span><span>Type the command</span><span class="cmd"><code>exec dollycam</code><button type="button" class="copy" data-copy="exec dollycam">Copy</button></span></li>
             </ol>
+          </article>
+
+          <article class="tool wide b2rl">
+            <div class="b2-top">
+              <div class="tool-main">
+                <div class="tool-head">
+                  <span class="tlogo nologo"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="7" width="12" height="10" rx="2"/><path d="M14.5 11l6-3.5v9l-6-3.5"/><path d="M5 4.5h7"/></svg></span>
+                  <div><span class="label">Blender add-on &middot; BakkesMod plugin</span><h3>Blender2RL</h3></div>
+                </div>
+                <p class="tool-desc">Animate a camera entirely in Blender, then play the exact same camera and movement in a Rocket League replay. Complex camera moves that are hard to do with the Dollycam become easy. Made by maya.</p>
+                <div class="b2-dl">
+                  <a class="cbtn" href="downloads/blender2rl.dll" download><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Plugin (.dll)</a>
+                  <a class="cbtn" href="downloads/blender2rl-addon.zip" download><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Blender add-on (.zip)</a>
+                </div>
+                <p class="note">Don't unzip the add-on: Blender installs it straight from the .zip file.</p>
+              </div>
+              <div class="b2-video">
+                <video src="ingame/blender2rl_tutorial.mp4" poster="ingame/blender2rl_tutorial.jpg" controls preload="none" playsinline></video>
+              </div>
+            </div>
+
+            <div class="b2-grid">
+              <section class="b2-sec">
+                <span class="label">How it works</span>
+                <p>The add-on exports every frame of the Blender camera: location, rotation and FOV. The plugin loads that file and plays the animation at the time you choose in the replay, matching its timing.</p>
+                <p>Each frame lasts 1/fps of replay time: at 60 fps in Blender, every frame is shown for 1/60th of a second. At 100% game speed it plays in real time, at 50% it plays slower too.</p>
+                <p>So the in-game recording lines up almost perfectly with the Blender render. If it doesn't, fix it with a time remap: every frame of the animation appears in the recording.</p>
+              </section>
+              <section class="b2-sec">
+                <span class="label">Installation</span>
+                <ol class="steps">
+                  <li><span class="sn">1</span><span><b>Blender add-on</b> &mdash; Edit &rarr; Preferences &rarr; Add-ons &rarr; Install from Disk, then select <code>blender2rl-addon.zip</code></span></li>
+                  <li><span class="sn">2</span><span><b>BakkesMod plugin</b> &mdash; copy <code>blender2rl.dll</code> into the BakkesMod plugins folder</span><span class="cmd"><code>%APPDATA%\bakkesmod\bakkesmod\plugins</code><button type="button" class="copy" data-copy="%APPDATA%\bakkesmod\bakkesmod\plugins">Copy</button></span></li>
+                  <li><span class="sn">3</span><span>Load the plugin in game (F6 console)</span><span class="cmd"><code>plugin load blender2rl</code><button type="button" class="copy" data-copy="plugin load blender2rl">Copy</button></span></li>
+                  <li><span class="sn">4</span><span>In Blender, export your camera with File &rarr; Export &rarr; blender2rl. It saves by default in BakkesMod's <code>data/blender2rl</code> folder.</span></li>
+                </ol>
+              </section>
+            </div>
+
+            <div class="b2-sec">
+              <span class="label">BakkesMod commands</span>
+              <ul class="cmds">
+                <li><span class="cmd"><code>blender2rl_load &lt;filename&gt;</code><button type="button" class="copy" data-copy="blender2rl_load ">Copy</button></span><p>Loads the animation file. It looks in BakkesMod's <code>data/blender2rl</code> folder, otherwise it uses the full path.</p></li>
+                <li><span class="cmd"><code>blender2rl_start_time [&lt;start time&gt;]</code><button type="button" class="copy" data-copy="blender2rl_start_time">Copy</button></span><p>Replay time at which the animation starts playing. Without a value, it uses the current replay time. <span class="def">Default: 0.0</span></p></li>
+                <li><span class="cmd"><code>blender2rl_activate</code><button type="button" class="copy" data-copy="blender2rl_activate">Copy</button></span><p>Activates the animation.</p></li>
+                <li><span class="cmd"><code>blender2rl_deactivate</code><button type="button" class="copy" data-copy="blender2rl_deactivate">Copy</button></span><p>Deactivates the animation.</p></li>
+                <li><span class="cmd"><code>blender2rl_scale &lt;scale&gt;</code><button type="button" class="copy" data-copy="blender2rl_scale ">Copy</button></span><p>Scale applied to the animation. Useful if your Blender scene has a different scale than the game. <span class="def">Default: 100</span></p></li>
+                <li><span class="cmd"><code>blender2rl_rotation &lt;pitch&gt; &lt;yaw&gt; &lt;roll&gt;</code><button type="button" class="copy" data-copy="blender2rl_rotation ">Copy</button></span><p>Rotation applied to the animation. Pitch: −16364 to 16340, yaw: −32768 to 32764, roll: −32768 to 32764. To flip the animation to the other side of the map: <code>blender2rl_rotation 0 32764 0</code> <span class="def">Default: 0 0 0</span></p></li>
+                <li><span class="cmd"><code>blender2rl_show</code><button type="button" class="copy" data-copy="blender2rl_show">Copy</button></span><p>Shows useful info: whether the camera is active, the start time, the current replay time, the animation length (frames), the scale and rotation, and the camera FOV, location, rotation and quaternion.</p></li>
+              </ul>
+            </div>
           </article>
 
           <article class="tool solo">

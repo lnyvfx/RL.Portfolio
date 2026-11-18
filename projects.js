@@ -11,6 +11,8 @@
      team      clé d'une team (voir "teams" plus bas) ou nom libre ; affiché seulement si renseigné
      year, role, tools:["Blender", ...]   (optionnels, petites pastilles)
      big:true   (breakdown) vidéo plus grande
+     right:true (breakdown) vidéo à droite, texte à gauche
+     newEffect:true (breakdown) ligne de séparation encadrée avant ce breakdown (nouvel effet)
      texture:{img, title, desc}  (breakdown) petite image + texte sous le texte de la vidéo
      stack:true (breakdown) texte plus petit au-dessus de la vidéo, à droite
      start      (vidéo seule) seconde de départ, pour sauter une intro : start:2.5
@@ -79,7 +81,7 @@ const projects = [
                desc:"One texture, multiplied across many layers with random size and rotation factors."}
       },
       src:"breakdowns/voracity_final.mp4", poster:"breakdowns/voracity_final.jpg"},
-     {kind:"3d", title:"Cars hit effect", desc:"how I managed to create a cool shock effect between rocket league cars in Blender", src:"breakdowns/Breakdown_1_Voracity.mp4", poster:"breakdowns/Breakdown_1_Voracity.jpg", big:true},
+     {kind:"3d", title:"Cars hit effect", desc:"how I managed to create a cool shock effect between rocket league cars in Blender", src:"breakdowns/Breakdown_1_Voracity.mp4", poster:"breakdowns/Breakdown_1_Voracity.jpg", big:true, right:true, newEffect:true},
      {kind:"3d", title:"Sparks particle system", desc:"The spark layer is used as the instance of a Particle System, so it emits lots of sparks with adapted settings (amount, speed, lifetime, spread). Here is the spark simulation alone on a black background.",
       src:"breakdowns/voracity_sparks.mp4", poster:"breakdowns/voracity_sparks.jpg",
       texture:{img:"breakdowns/sparks_texture.png", title:"Spark texture", desc:"A single spark layer: this is the instance the Particle System emits."}}

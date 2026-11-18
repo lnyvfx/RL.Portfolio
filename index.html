@@ -174,6 +174,13 @@ html[data-sb="c"] .sb-top{padding:0;justify-content:center}
 .bd-row.rev .bd-text{order:2}
 .bd-row.rev{grid-template-columns:minmax(0,6fr) minmax(0,5fr)}
 .bd-row.rev.big{grid-template-columns:minmax(0,8fr) minmax(0,4fr)}   /* vidéo agrandie */
+.bd-row.big:not(.rev){grid-template-columns:minmax(0,4fr) minmax(0,8fr)}
+.bd-aside .bd-tex{margin-top:12px;padding-top:28px;border-top:1px solid var(--line)}
+/* Séparation encadrée entre deux effets (lignes fines, façon grille) */
+.fx-sep{position:relative;height:72px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.fx-sep::before,.fx-sep::after{content:"";position:absolute;top:-72px;bottom:-72px;width:1px;background:linear-gradient(to bottom,transparent,var(--line) 50%,var(--line) 50%,transparent)}
+.fx-sep::before{left:64px}
+.fx-sep::after{right:64px}
 .bd-text .bd-tex{margin-top:34px;padding-top:28px;border-top:1px solid var(--line)}
 .bd-text .tag{margin-bottom:18px}
 .bd-text h3{font-size:clamp(1.6rem,3vw,2.3rem);font-weight:500;line-height:1.15;letter-spacing:-.02em;margin-bottom:18px}
@@ -214,7 +221,7 @@ html[data-sb="c"] .sb-top{padding:0;justify-content:center}
 .cmp .lbl{position:absolute;top:12px;padding:4px 9px;border-radius:5px;background:rgba(5,5,5,.65);color:#e6e6e6;font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;pointer-events:none}
 .cmp .lbl.l{left:12px}.cmp .lbl.r{right:12px}
 .cmp:focus-visible{outline:2px solid #fff;outline-offset:3px}
-@media(max-width:860px){.bd-row.stack .bd-col{grid-column:auto}.bd-row.stack .bd-aside{grid-column:auto;grid-row:auto;order:2}.bd-row,.bd-row.rev,.bd-row.rev.big{grid-template-columns:1fr;gap:26px}.bd-row.rev .bd-text{order:0}}
+@media(max-width:860px){.fx-sep{height:48px}.fx-sep::before{left:24px}.fx-sep::after{right:24px}.fx-sep::before,.fx-sep::after{top:-40px;bottom:-40px}.bd-row.stack .bd-col{grid-column:auto}.bd-row.stack .bd-aside{grid-column:auto;grid-row:auto;order:2}.bd-row,.bd-row.rev,.bd-row.rev.big,.bd-row.big:not(.rev){grid-template-columns:1fr;gap:26px}.bd-row.rev .bd-text{order:0}}
 
 /* Breakdown (quand il y en a) */
 .bd-tabs{display:flex;gap:8px;margin-bottom:18px}
@@ -683,7 +690,7 @@ function autoPlayWhenVisible(box, vids) { box._vids = vids; bdObserver.observe(b
 
 function bdItem(b, p, withProject, idx) {
   const el = document.createElement('article');
-  el.className = 'bd-row' + (b.before ? '' : ' rev') + (b.big ? ' big' : ''); el.dataset.kind = b.kind;   // avant/après : texte à gauche ; sinon vidéo à gauche
+  el.className = 'bd-row' + (b.before || b.right ? '' : ' rev') + (b.big ? ' big' : ''); el.dataset.kind = b.kind;   // avant/après : texte à gauche ; sinon vidéo à gauche
   const text = document.createElement('div'); text.className = 'bd-text';
   text.innerHTML = (b.title ? `<h3>${esc(b.title)}</h3>` : '') + (b.desc ? `<p>${esc(b.desc)}</p>` : '') +
     (withProject ? `<a class="bd-proj" href="#/project/${encodeURIComponent(p.id)}">${esc(p.title)} &rarr;</a>` : '');
@@ -743,7 +750,10 @@ function buildBreakdowns() {   // un onglet par projet ; le lien vers le projet 
     const t = document.createElement('button');
     t.type = 'button'; t.textContent = p.title; t.setAttribute('role', 'tab');
     const list = document.createElement('div'); list.className = 'bd-list'; list.setAttribute('role', 'tabpanel');
-    p.breakdown.forEach((b, j) => list.appendChild(bdItem(b, p, j === 0)));
+    p.breakdown.forEach((b, j) => {
+      if (b.newEffect && j) { const sep = document.createElement('div'); sep.className = 'fx-sep'; sep.setAttribute('aria-hidden', 'true'); list.appendChild(sep); }
+      list.appendChild(bdItem(b, p, j === 0));
+    });
     t.addEventListener('click', () => show(i));
     tabs.appendChild(t);
     return {t, list};

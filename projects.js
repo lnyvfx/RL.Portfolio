@@ -12,6 +12,7 @@
      year, role, tools:["Blender", ...]   (optionnels, petites pastilles)
      big:true   (breakdown) vidéo plus grande
      right:true (breakdown) vidéo à droite, texte à gauche
+     pair:[{src, poster, title, desc}, {...}] (breakdown) deux petites vidéos côte à côte à droite, texte principal à gauche
      newEffect:true (breakdown) ligne de séparation encadrée avant ce breakdown (nouvel effet)
      texture:{img, title, desc}  (breakdown) petite image + texte sous le texte de la vidéo
      stack:true (breakdown) texte plus petit au-dessus de la vidéo, à droite
@@ -63,7 +64,15 @@ const projects = [
       before:"breakdowns/backroom_avant.mp4", beforePoster:"breakdowns/backroom_avant.jpg",
       src:"breakdowns/backroom_apres.mp4", poster:"breakdowns/backroom_apres.jpg"},
      {kind:"3d", title:"Backroom effect, full breakdown", desc:"3D models setup · Rendered in Cycles (Blender) · VHS effect composited in After Effects",
-      src:"breakdowns/Breakdown_1_EchoChamber.mp4", poster:"breakdowns/Breakdown_1_EchoChamber.jpg"}
+      src:"breakdowns/Breakdown_1_EchoChamber.mp4", poster:"breakdowns/Breakdown_1_EchoChamber.jpg"},
+     {kind:"3d", title:"Camera tracking", newEffect:true,
+      desc:"The real shot is tracked to recreate a virtual camera in Blender, so the 3D scene follows the footage with the exact same perspective and movement.",
+      pair:[
+        {src:"breakdowns/echo_track_checker.mp4", poster:"breakdowns/echo_track_checker.jpg", title:"Checker render",
+         desc:"The tracked camera rendered with a checker texture, to clearly read the perspective and the camera movement."},
+        {src:"breakdowns/echo_track_points.mp4", poster:"breakdowns/echo_track_points.jpg", title:"Point cloud",
+         desc:"The points recovered during tracking: a few dots in 3D space that rebuild the volumes and reliefs the tracking relied on to recreate the virtual camera."}
+      ]}
    ]},
   {id:"jTG4uRBdb40", title:"Kickstart", type:"solo", label:"solo edit", team:"soul",
    desc:"A solo edit, client work for Team Soul.",

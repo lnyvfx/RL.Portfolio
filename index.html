@@ -175,6 +175,9 @@ html[data-sb="c"] .sb-top{padding:0;justify-content:center}
 .bd-row.rev{grid-template-columns:minmax(0,6fr) minmax(0,5fr)}
 .bd-row.rev.big{grid-template-columns:minmax(0,8fr) minmax(0,4fr)}   /* vidéo agrandie */
 .bd-row.big:not(.rev){grid-template-columns:minmax(0,4fr) minmax(0,8fr)}
+.bd-row.pair{grid-template-columns:minmax(0,4fr) minmax(0,7fr);align-items:start}
+.pair-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(16px,2vw,26px)}
+.pair-item{display:flex;flex-direction:column;gap:16px}
 .bd-aside .bd-tex{margin-top:12px;padding-top:28px;border-top:1px solid var(--line)}
 /* Séparation encadrée entre deux effets (lignes fines, façon grille) */
 .fx-sep{position:relative;height:72px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
@@ -221,7 +224,7 @@ html[data-sb="c"] .sb-top{padding:0;justify-content:center}
 .cmp .lbl{position:absolute;top:12px;padding:4px 9px;border-radius:5px;background:rgba(5,5,5,.65);color:#e6e6e6;font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;pointer-events:none}
 .cmp .lbl.l{left:12px}.cmp .lbl.r{right:12px}
 .cmp:focus-visible{outline:2px solid #fff;outline-offset:3px}
-@media(max-width:860px){.fx-sep{height:48px}.fx-sep::before{left:24px}.fx-sep::after{right:24px}.fx-sep::before,.fx-sep::after{top:-40px;bottom:-40px}.bd-row.stack .bd-col{grid-column:auto}.bd-row.stack .bd-aside{grid-column:auto;grid-row:auto;order:2}.bd-row,.bd-row.rev,.bd-row.rev.big,.bd-row.big:not(.rev){grid-template-columns:1fr;gap:26px}.bd-row.rev .bd-text{order:0}}
+@media(max-width:860px){.fx-sep{height:48px}.fx-sep::before{left:24px}.fx-sep::after{right:24px}.fx-sep::before,.fx-sep::after{top:-40px;bottom:-40px}.bd-row.stack .bd-col{grid-column:auto}.bd-row.stack .bd-aside{grid-column:auto;grid-row:auto;order:2}.bd-row,.bd-row.rev,.bd-row.rev.big,.bd-row.big:not(.rev),.bd-row.pair{grid-template-columns:1fr;gap:26px}.bd-row.rev .bd-text{order:0}}
 
 /* Breakdown (quand il y en a) */
 .bd-tabs{display:flex;gap:8px;margin-bottom:18px}
@@ -345,7 +348,7 @@ html.intro-on{overflow:hidden}
   .name{justify-content:flex-start}
   .dl .cbtn{width:100%}
 }
-@media(max-width:560px){.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}.page{padding-top:36px}}
+@media(max-width:560px){.pair-grid{grid-template-columns:1fr}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}.page{padding-top:36px}}
 .rv-wait{opacity:0;transform:translateY(18px)}
 .rv-line{display:block;white-space:nowrap}
 .rv-wait.rv-in{opacity:1;transform:none;transition:opacity .7s ease,transform .85s cubic-bezier(.2,.7,.2,1)}
@@ -699,6 +702,19 @@ function bdItem(b, p, withProject, idx) {
     r.innerHTML = `<div class="tex-img"><img src="${esc(tx.img)}" alt="${esc(tx.title || 'Texture')}" loading="lazy"></div>
       <div class="bd-small"><h3>${esc(tx.title || '')}</h3><p>${esc(tx.desc || '')}</p></div>`;
     text.appendChild(r);
+  }
+  if (b.pair) {   // pair:[...] -> texte à gauche, deux petites vidéos côte à côte à droite (chacune avec son texte)
+    el.className = 'bd-row pair';
+    const grid = document.createElement('div'); grid.className = 'pair-grid';
+    b.pair.forEach(it => {
+      const c = document.createElement('div'); c.className = 'pair-item';
+      c.appendChild(bdMedia({src: it.src, poster: it.poster}));
+      const t = document.createElement('div'); t.className = 'bd-small';
+      t.innerHTML = `<h3>${esc(it.title || '')}</h3><p>${esc(it.desc || '')}</p>`;
+      c.appendChild(t); grid.appendChild(c);
+    });
+    el.appendChild(text); el.appendChild(grid);
+    return el;
   }
   if (b.stack) {   // stack:true -> même colonne que l'avant/après, texte au-dessus de la vidéo
     el.className = 'bd-row stack';

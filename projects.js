@@ -10,6 +10,8 @@
                  -> le projet apparaît dans Shop avec un bouton "Buy". buy:"" = bouton grisé en attendant le lien
      team      clé d'une team (voir "teams" plus bas) ou nom libre ; affiché seulement si renseigné
      year, role, tools:["Blender", ...]   (optionnels, petites pastilles)
+     big:true   (breakdown) vidéo plus grande
+     texture:{img, title, desc}  (breakdown) petite image + texte sous le texte de la vidéo
      stack:true (breakdown) texte plus petit au-dessus de la vidéo, à droite
      start      (vidéo seule) seconde de départ, pour sauter une intro : start:2.5
      breakdown:[
@@ -72,12 +74,15 @@ const projects = [
      {kind:"3d", title:"Card floor, after compositing", desc:"The final shot, once the render is composited.", stack:true,
       aside:{   // colonne de gauche : séquence 360° (cliquer-glisser) + texture
         scrub:{dir:"breakdowns/particles/", frames:100, start:50, title:"Camera-facing layers",
-               desc:"Each particle is a flat 2D layer placed in 3D space. The layers always follow the camera's orientation, so the cloud keeps its volume from every angle. Drag to orbit around it."},
+               desc:"Each glowing point is a particle: a flat 2D layer placed in 3D space. The layers always follow the camera's orientation, so they keep facing it from every angle. Drag to orbit around them."},
         texture:{img:"breakdowns/particles_texture.png", title:"Particle texture",
                desc:"One texture, multiplied across many layers with random size and rotation factors."}
       },
       src:"breakdowns/voracity_final.mp4", poster:"breakdowns/voracity_final.jpg"},
-     {kind:"3d", title:"Cars hit effect", desc:"how I managed to create a cool shock effect between rocket league cars in Blender", src:"breakdowns/Breakdown_1_Voracity.mp4", poster:"breakdowns/Breakdown_1_Voracity.jpg"}
+     {kind:"3d", title:"Cars hit effect", desc:"how I managed to create a cool shock effect between rocket league cars in Blender", src:"breakdowns/Breakdown_1_Voracity.mp4", poster:"breakdowns/Breakdown_1_Voracity.jpg", big:true},
+     {kind:"3d", title:"Sparks particle system", desc:"The spark layer is used as the instance of a Particle System, so it emits lots of sparks with adapted settings (amount, speed, lifetime, spread). Here is the spark simulation alone on a black background.",
+      src:"breakdowns/voracity_sparks.mp4", poster:"breakdowns/voracity_sparks.jpg",
+      texture:{img:"breakdowns/sparks_texture.png", title:"Spark texture", desc:"A single spark layer: this is the instance the Particle System emits."}}
    ]},
   {id:"z1bxOp29GUc", title:"Revolver", type:"team", label:"Team project", team:"nixus",
    desc:"A collective project where each editor brings their own style to a spooky edit."},

@@ -173,6 +173,8 @@ html[data-sb="c"] .sb-top{padding:0;justify-content:center}
 .bd-row{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(32px,6vw,90px);align-items:center}
 .bd-row.rev .bd-text{order:2}
 .bd-row.rev{grid-template-columns:minmax(0,6fr) minmax(0,5fr)}
+.bd-row.rev.big{grid-template-columns:minmax(0,8fr) minmax(0,4fr)}   /* vidéo agrandie */
+.bd-text .bd-tex{margin-top:34px;padding-top:28px;border-top:1px solid var(--line)}
 .bd-text .tag{margin-bottom:18px}
 .bd-text h3{font-size:clamp(1.6rem,3vw,2.3rem);font-weight:500;line-height:1.15;letter-spacing:-.02em;margin-bottom:18px}
 .bd-text p{font:400 13.5px/1.9 var(--mono);color:var(--muted);max-width:46ch}
@@ -212,7 +214,7 @@ html[data-sb="c"] .sb-top{padding:0;justify-content:center}
 .cmp .lbl{position:absolute;top:12px;padding:4px 9px;border-radius:5px;background:rgba(5,5,5,.65);color:#e6e6e6;font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;pointer-events:none}
 .cmp .lbl.l{left:12px}.cmp .lbl.r{right:12px}
 .cmp:focus-visible{outline:2px solid #fff;outline-offset:3px}
-@media(max-width:860px){.bd-row.stack .bd-col{grid-column:auto}.bd-row.stack .bd-aside{grid-column:auto;grid-row:auto;order:2}.bd-row,.bd-row.rev{grid-template-columns:1fr;gap:26px}.bd-row.rev .bd-text{order:0}}
+@media(max-width:860px){.bd-row.stack .bd-col{grid-column:auto}.bd-row.stack .bd-aside{grid-column:auto;grid-row:auto;order:2}.bd-row,.bd-row.rev,.bd-row.rev.big{grid-template-columns:1fr;gap:26px}.bd-row.rev .bd-text{order:0}}
 
 /* Breakdown (quand il y en a) */
 .bd-tabs{display:flex;gap:8px;margin-bottom:18px}
@@ -662,10 +664,10 @@ function scrubber(sc) {
   let drag = false, x0 = 0, f0 = 0;
   const set = f => { const v = ((Math.round(f) % n) + n) % n; if (v !== cur) { cur = v; show(); } };
   el.addEventListener('pointerdown', e => { drag = true; x0 = e.clientX; f0 = cur; el.classList.add('on'); el.setPointerCapture(e.pointerId); e.preventDefault(); });
-  el.addEventListener('pointermove', e => { if (drag) set(f0 - (e.clientX - x0) / PX); });
+  el.addEventListener('pointermove', e => { if (drag) set(f0 + (e.clientX - x0) / PX); });
   const up = () => { drag = false; el.classList.remove('on'); };
   el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
-  el.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') set(cur + 2); else if (e.key === 'ArrowRight') set(cur - 2); });
+  el.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') set(cur - 2); else if (e.key === 'ArrowRight') set(cur + 2); });
   return el;
 }
 // Lit les vidéos seulement quand elles sont à l'écran (économise le processeur)
@@ -681,10 +683,16 @@ function autoPlayWhenVisible(box, vids) { box._vids = vids; bdObserver.observe(b
 
 function bdItem(b, p, withProject, idx) {
   const el = document.createElement('article');
-  el.className = 'bd-row' + (b.before ? '' : ' rev'); el.dataset.kind = b.kind;   // avant/après : texte à gauche ; sinon vidéo à gauche
+  el.className = 'bd-row' + (b.before ? '' : ' rev') + (b.big ? ' big' : ''); el.dataset.kind = b.kind;   // avant/après : texte à gauche ; sinon vidéo à gauche
   const text = document.createElement('div'); text.className = 'bd-text';
   text.innerHTML = (b.title ? `<h3>${esc(b.title)}</h3>` : '') + (b.desc ? `<p>${esc(b.desc)}</p>` : '') +
     (withProject ? `<a class="bd-proj" href="#/project/${encodeURIComponent(p.id)}">${esc(p.title)} &rarr;</a>` : '');
+  if (b.texture) {   // texture:{...} -> petite image + texte, sous le texte de la vidéo
+    const tx = b.texture, r = document.createElement('div'); r.className = 'bd-tex';
+    r.innerHTML = `<div class="tex-img"><img src="${esc(tx.img)}" alt="${esc(tx.title || 'Texture')}" loading="lazy"></div>
+      <div class="bd-small"><h3>${esc(tx.title || '')}</h3><p>${esc(tx.desc || '')}</p></div>`;
+    text.appendChild(r);
+  }
   if (b.stack) {   // stack:true -> même colonne que l'avant/après, texte au-dessus de la vidéo
     el.className = 'bd-row stack';
     const col = document.createElement('div'); col.className = 'bd-col';

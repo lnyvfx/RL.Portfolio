@@ -186,6 +186,19 @@ html[data-sb="c"] .sb-top{padding:0;justify-content:center}
 .bd-row.stack .bd-col{grid-column:2;display:flex;flex-direction:column;gap:18px}
 .bd-row.stack .bd-text h3{font-size:1.15rem;margin-bottom:8px}
 .bd-row.stack .bd-text p{font-size:12.5px;line-height:1.8}
+.bd-row.stack .bd-aside{grid-column:1;grid-row:1;align-self:start;display:flex;flex-direction:column;gap:22px}
+.bd-small h3{font-size:1.05rem;font-weight:500;margin-bottom:8px}
+.bd-small p{font:400 12.5px/1.8 var(--mono);color:var(--muted);max-width:46ch}
+.scrub{position:relative;aspect-ratio:1;max-width:420px;width:100%;border-radius:10px;overflow:hidden;background:#000;box-shadow:0 0 0 1px var(--line);cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.scrub.on{cursor:grabbing}
+.scrub img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.scrub .hint{position:absolute;left:12px;bottom:12px;display:inline-flex;align-items:center;gap:7px;padding:5px 9px;border-radius:5px;background:rgba(5,5,5,.7);color:#d6d6d6;font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;pointer-events:none;transition:opacity .25s}
+.scrub .hint svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.scrub.on .hint{opacity:0}
+.scrub:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.bd-tex{display:flex;align-items:center;gap:18px;max-width:420px}
+.tex-img{width:96px;height:96px;flex:none;border-radius:8px;overflow:hidden;background:#000;box-shadow:0 0 0 1px var(--line)}
+.tex-img img{width:100%;height:100%;object-fit:cover;display:block}
 /* Projects : même mise en page que les breakdowns */
 .plist{display:flex;flex-direction:column;gap:var(--peek-gap,clamp(90px,13vw,170px));margin-top:clamp(28px,4vw,48px)}
 .pmeta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin-bottom:16px;font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#7a7a7a}
@@ -199,7 +212,7 @@ html[data-sb="c"] .sb-top{padding:0;justify-content:center}
 .cmp .lbl{position:absolute;top:12px;padding:4px 9px;border-radius:5px;background:rgba(5,5,5,.65);color:#e6e6e6;font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;pointer-events:none}
 .cmp .lbl.l{left:12px}.cmp .lbl.r{right:12px}
 .cmp:focus-visible{outline:2px solid #fff;outline-offset:3px}
-@media(max-width:860px){.bd-row.stack .bd-col{grid-column:auto}.bd-row,.bd-row.rev{grid-template-columns:1fr;gap:26px}.bd-row.rev .bd-text{order:0}}
+@media(max-width:860px){.bd-row.stack .bd-col{grid-column:auto}.bd-row.stack .bd-aside{grid-column:auto;grid-row:auto;order:2}.bd-row,.bd-row.rev{grid-template-columns:1fr;gap:26px}.bd-row.rev .bd-text{order:0}}
 
 /* Breakdown (quand il y en a) */
 .bd-tabs{display:flex;gap:8px;margin-bottom:18px}
@@ -298,7 +311,7 @@ html.colorize .sidebar,html.colorize .topbar,html.colorize #content,html.coloriz
 html.intro-on{overflow:hidden}
 #intro{position:fixed;inset:0;z-index:9999;background:#000}
 #intro.ready{background:transparent}
-#intro canvas{position:absolute;inset:0;width:100%;height:100%;display:block;filter:grayscale(1)}   /* intro affichée en noir et blanc */
+#intro canvas{position:absolute;inset:0;width:100%;height:100%;display:block;filter:grayscale(1) invert(1)}   /* intro en noir et blanc, couleurs inversées */
 #intro .skip{position:absolute;right:24px;bottom:24px;z-index:2;min-width:0;height:42px;padding:0 20px;background:rgba(16,16,16,.85)}
 @media(max-width:600px){#intro .skip{right:16px;bottom:16px}}
 
@@ -613,6 +626,48 @@ function bdMedia(b) {
   }
   return box;
 }
+// Colonne de gauche d'un breakdown "stack" : séquence 360° à faire tourner à la souris + texture
+function bdAside(a) {
+  const box = document.createElement('div'); box.className = 'bd-aside';
+  if (a.scrub) {
+    const sc = a.scrub;
+    const w = document.createElement('div'); w.className = 'bd-small';
+    w.innerHTML = `<h3>${esc(sc.title || '')}</h3><p>${esc(sc.desc || '')}</p>`;
+    box.appendChild(w);
+    box.appendChild(scrubber(sc));
+  }
+  if (a.texture) {
+    const tx = a.texture, r = document.createElement('div'); r.className = 'bd-tex';
+    r.innerHTML = `<div class="tex-img"><img src="${esc(tx.img)}" alt="${esc(tx.title || 'Texture')}" loading="lazy"></div>
+      <div class="bd-small"><h3>${esc(tx.title || '')}</h3><p>${esc(tx.desc || '')}</p></div>`;
+    box.appendChild(r);
+  }
+  return box;
+}
+// Séquence d'images bloquée sur une image ; cliquer-glisser à gauche/droite fait tourner la caméra autour (360°, en boucle)
+function scrubber(sc) {
+  const n = sc.frames, el = document.createElement('div');
+  el.className = 'scrub'; el.tabIndex = 0;
+  el.setAttribute('role', 'slider'); el.setAttribute('aria-label', 'Rotate around the 3D scene, drag left or right or use the arrow keys');
+  el.setAttribute('aria-valuemin', 1); el.setAttribute('aria-valuemax', n);
+  el.innerHTML = '<img alt="" draggable="false"><span class="hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M4 12h16"/></svg>Drag to orbit</span>';
+  const img = el.querySelector('img'), src = i => sc.dir + String(i).padStart(4, '0') + '.webp';
+  let cur = (sc.start || Math.ceil(n / 2)) - 1;      // index 0..n-1 (image 50 par défaut)
+  const cache = [];
+  const show = () => { img.src = src(cur + 1); el.setAttribute('aria-valuenow', cur + 1); };
+  show();
+  // on précharge toute la séquence quand le bloc approche de l'écran
+  new IntersectionObserver((en, ob) => { if (en[0].isIntersecting) { ob.disconnect(); for (let i = 1; i <= n; i++) { const im = new Image(); im.src = src(i); cache.push(im); } } }, {rootMargin: '300px'}).observe(el);
+  const PX = sc.pxPerFrame || 5;                       // pixels de souris par image
+  let drag = false, x0 = 0, f0 = 0;
+  const set = f => { const v = ((Math.round(f) % n) + n) % n; if (v !== cur) { cur = v; show(); } };
+  el.addEventListener('pointerdown', e => { drag = true; x0 = e.clientX; f0 = cur; el.classList.add('on'); el.setPointerCapture(e.pointerId); e.preventDefault(); });
+  el.addEventListener('pointermove', e => { if (drag) set(f0 - (e.clientX - x0) / PX); });
+  const up = () => { drag = false; el.classList.remove('on'); };
+  el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+  el.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') set(cur + 2); else if (e.key === 'ArrowRight') set(cur - 2); });
+  return el;
+}
 // Lit les vidéos seulement quand elles sont à l'écran (économise le processeur)
 const bdObserver = new IntersectionObserver(entries => {
   entries.forEach(en => {
@@ -633,7 +688,9 @@ function bdItem(b, p, withProject, idx) {
   if (b.stack) {   // stack:true -> même colonne que l'avant/après, texte au-dessus de la vidéo
     el.className = 'bd-row stack';
     const col = document.createElement('div'); col.className = 'bd-col';
-    col.appendChild(text); col.appendChild(bdMedia(b)); el.appendChild(col);
+    col.appendChild(text); col.appendChild(bdMedia(b));
+    if (b.aside) el.appendChild(bdAside(b.aside));   // colonne de gauche : séquence à faire tourner + texture
+    el.appendChild(col);
     return el;
   }
   el.appendChild(text); el.appendChild(bdMedia(b));

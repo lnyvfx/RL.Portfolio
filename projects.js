@@ -70,6 +70,12 @@ const projects = [
       before:"breakdowns/voracity_avant.mp4", beforePoster:"breakdowns/voracity_avant.jpg",
       src:"breakdowns/voracity_apres.mp4", poster:"breakdowns/voracity_apres.jpg"},
      {kind:"3d", title:"Card floor, after compositing", desc:"The final shot, once the render is composited.", stack:true,
+      aside:{   // colonne de gauche : séquence 360° (cliquer-glisser) + texture
+        scrub:{dir:"breakdowns/particles/", frames:100, start:50, title:"Camera-facing layers",
+               desc:"Each particle is a flat 2D layer placed in 3D space. The layers always follow the camera's orientation, so the cloud keeps its volume from every angle. Drag to orbit around it."},
+        texture:{img:"breakdowns/particles_texture.png", title:"Particle texture",
+               desc:"One texture, multiplied across many layers with random size and rotation factors."}
+      },
       src:"breakdowns/voracity_final.mp4", poster:"breakdowns/voracity_final.jpg"},
      {kind:"3d", title:"Cars hit effect", desc:"how I managed to create a cool shock effect between rocket league cars in Blender", src:"breakdowns/Breakdown_1_Voracity.mp4", poster:"breakdowns/Breakdown_1_Voracity.jpg"}
    ]},

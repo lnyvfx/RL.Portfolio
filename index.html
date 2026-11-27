@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>try{if(localStorage.getItem('sb')==='c')document.documentElement.dataset.sb='c'}catch(e){}
-try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('mono')}catch(e){}</script>
+document.documentElement.classList.add('loading')</script>
 <title>LnyVFX</title>
 <link rel="icon" href="/favicon.png" type="image/png" sizes="512x512">
 <link rel="apple-touch-icon" href="/favicon.png">
@@ -346,16 +346,14 @@ kbd{font:600 12px var(--mono);padding:4px 9px;border-radius:5px;background:#1d1d
 @media(max-width:1000px){.b2-top,.b2-grid,.cmds{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:860px){.tool{grid-template-columns:1fr}.cmd{margin-left:0}.steps li .cmd{max-width:100%}.steps li .cmd code{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
 
-/* ---------- Intro ---------- */
-/* pendant l'intro le site est en noir et blanc, puis il reprend ses couleurs */
-html.mono .sidebar,html.mono .topbar,html.mono #content,html.mono .site-foot{filter:grayscale(1)}
-html.colorize .sidebar,html.colorize .topbar,html.colorize #content,html.colorize .site-foot{transition:filter var(--col-dur,.9s) ease}
-html.intro-on{overflow:hidden}
-#intro{position:fixed;inset:0;z-index:9999;background:#000}
-#intro.ready{background:transparent}
-#intro canvas{position:absolute;inset:0;width:100%;height:100%;display:block;filter:grayscale(1) invert(1)}   /* intro en noir et blanc, couleurs inversées */
-#intro .skip{position:absolute;right:24px;bottom:24px;z-index:2;min-width:0;height:42px;padding:0 20px;background:rgba(16,16,16,.85)}
-@media(max-width:600px){#intro .skip{right:16px;bottom:16px}}
+/* ---------- Chargement : page noire, le logo L se remplit de bas en haut ---------- */
+html.loading{overflow:hidden}
+#loader{position:fixed;inset:0;z-index:9999;background:#000;display:grid;place-items:center;transition:opacity .55s ease,visibility .55s}
+#loader.out{opacity:0;visibility:hidden}
+.ld-logo{position:relative;width:44px;height:44px;--p:0%}
+.ld-logo img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:grayscale(1);border-radius:10px}
+.ld-logo .ld-empty{opacity:.13}                                     /* logo "vide" */
+.ld-logo .ld-full{clip-path:inset(calc(100% - var(--p)) 0 0 0)}      /* logo "plein", révélé selon la progression */
 
 /* ---------- Responsive ---------- */
 @media(max-width:860px){
@@ -389,10 +387,12 @@ html.intro-on{overflow:hidden}
 </style>
 </head>
 <body>
-<!-- Intro plein écran : séquence d'images (dossier intro/, 0001.webp à 0045.webp) -->
-<div id="intro">
-  <canvas aria-hidden="true"></canvas>
-  <button type="button" class="cbtn skip">Skip intro</button>
+<!-- Écran de chargement : logo L qui se remplit, puis le site apparaît -->
+<div id="loader" role="status" aria-label="Loading">
+  <div class="ld-logo" aria-hidden="true">
+    <img class="ld-empty" src="favicon.png" alt="">
+    <img class="ld-full" src="favicon.png" alt="">
+  </div>
 </div>
 <aside class="sidebar" id="sidebar" aria-label="Main navigation">
   <div class="sb-top">
@@ -1196,76 +1196,36 @@ function armReveal(scope) {
   });
 }
 
-/* ---------- Intro : séquence d'images plein écran (la transition est déjà dans les dernières images) ----------
-   Le site derrière passe du noir et blanc à la couleur de l'image 40 jusqu'à ~1 s après la fin de l'intro. */
-const INTRO = {frames: 45, fps: 12, colorFrom: 40, textFrom: 42, dir: 'intro/'};
+/* ---------- Chargement : le logo L se remplit pendant que la page charge, puis le site apparaît ---------- */
+const LOADER = {min: 900, max: 6000};   // durée mini pour voir le remplissage, durée maxi si la connexion est lente
 let introDone = false;
 const introWaiters = [];
 function afterIntro(fn) { introDone ? fn() : introWaiters.push(fn); }
-(function intro() {
-  const html = document.documentElement, box = document.getElementById('intro');
-  const colorize = ms => {   // noir et blanc -> couleur
-    if (!html.classList.contains('mono')) return;
-    html.style.setProperty('--col-dur', ms + 'ms');
-    html.classList.add('colorize');
-    requestAnimationFrame(() => requestAnimationFrame(() => html.classList.remove('mono')));
-    setTimeout(() => html.classList.remove('colorize'), ms + 150);
-  };
-  const startTexts = () => { if (introDone) return; introDone = true; introWaiters.splice(0).forEach(f => f()); };
+(function loader() {
+  const html = document.documentElement, box = document.getElementById('loader');
+  const logo = box && box.querySelector('.ld-logo');
   let closed = false;
   const close = () => {
     if (closed) return; closed = true;
-    if (box) box.remove();
-    html.classList.remove('intro-on');
-    colorize(600);            // sans effet si la couleur est déjà revenue
-    startTexts();
+    html.classList.remove('loading');
+    if (box) { box.classList.add('out'); setTimeout(() => box.remove(), 600); }
+    introDone = true; introWaiters.splice(0).forEach(f => f());   // les textes apparaissent
   };
-  if (!box || matchMedia('(prefers-reduced-motion: reduce)').matches) { close(); return; }
-  html.classList.add('intro-on');
-
-  // Bouton "Skip intro" : on coupe l'intro et on arrive sur la première page
-  const skip = () => { if (closed) return; if (location.hash && location.hash !== '#/projects') location.hash = '#/projects'; scrollTo(0, 0); close(); };
-  box.querySelector('.skip').addEventListener('click', skip);
-  addEventListener('keydown', e => { if (e.key === 'Escape') skip(); });
-
-  const cv = box.querySelector('canvas'), ctx = cv.getContext('2d');
-  const size = () => { const d = Math.min(devicePixelRatio || 1, 1.5); cv.width = Math.round(innerWidth * d); cv.height = Math.round(innerHeight * d); };
-  size(); addEventListener('resize', size);
-  let cur = null;
-  const draw = im => {
-    cur = im; if (closed) return;
-    const s = Math.max(cv.width / im.naturalWidth, cv.height / im.naturalHeight);   // plein écran (cover)
-    const w = im.naturalWidth * s, h = im.naturalHeight * s;
-    ctx.clearRect(0, 0, cv.width, cv.height);
-    ctx.drawImage(im, (cv.width - w) / 2, (cv.height - h) / 2, w, h);
-    box.classList.add('ready');
-  };
-  addEventListener('resize', () => { if (cur) draw(cur); });
-
-  // On précharge toutes les images avant de lancer l'intro (sinon elle saccaderait)
-  const imgs = Array.from({length: INTRO.frames}, (_, i) => { const im = new Image(); im.src = INTRO.dir + String(i + 1).padStart(4, '0') + '.webp'; return im; });
-  const load = im => im.decode ? im.decode() : new Promise((res, rej) => { im.onload = res; im.onerror = rej; });
-  let started = false;
-  const giveUp = setTimeout(() => { if (!started) close(); }, 8000);   // connexion trop lente : on n'attend pas
-  Promise.all(imgs.map(load)).then(() => {
-    if (closed) return;
-    started = true; clearTimeout(giveUp);
-    const t0 = performance.now(); let last = -1, colored = false, texts = false;
-    const tick = now => {
-      if (closed) return;
-      const f = Math.floor((now - t0) / 1000 * INTRO.fps);          // index de l'image à afficher
-      if (f >= INTRO.frames) { close(); return; }
-      if (f !== last) {
-        last = f; draw(imgs[f]);
-        if (!colored && f + 1 >= INTRO.colorFrom) {                 // image 40 -> couleur jusqu'à 1 s après la fin
-          colored = true; colorize(Math.round((INTRO.frames - f) / INTRO.fps * 1000) + 1000);
-        }
-        if (!texts && f + 1 >= INTRO.textFrom) { texts = true; startTexts(); }
-      }
-      requestAnimationFrame(tick);
-    };
+  if (!logo) { close(); return; }
+  let loaded = document.readyState === 'complete';
+  addEventListener('load', () => { loaded = true; });
+  setTimeout(() => { loaded = true; }, LOADER.max);
+  const t0 = performance.now(); let p = 0;
+  const tick = now => {
+    const t = now - t0, done = loaded && t >= LOADER.min;
+    const target = done ? 1 : .9 * (1 - Math.exp(-t / 700));   // monte vers 90 % en attendant, puis 100 %
+    p += (target - p) * (done ? .2 : .12);
+    if (done && p > .995) p = 1;
+    logo.style.setProperty('--p', (p * 100).toFixed(2) + '%');
+    if (p === 1) { setTimeout(close, 180); return; }
     requestAnimationFrame(tick);
-  }).catch(close);
+  };
+  requestAnimationFrame(tick);
 })();
 
 /* ---------- Routeur (#/projects, #/breakdowns, #/project/ID ...) ---------- */
